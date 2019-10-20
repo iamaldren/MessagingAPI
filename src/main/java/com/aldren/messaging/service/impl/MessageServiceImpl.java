@@ -8,8 +8,6 @@ import com.aldren.messaging.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -20,27 +18,12 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public void send(String sender, Message message) throws UserDoesNotExistException {
-        List<String> userStr = new ArrayList<>();
-        userStr.add(sender);
-        userStr.add(message.getReceiver());
+        Users poster = userRepo.findByUserId(sender);
 
-        List<Users> users = userRepo.findUsersByINAggregation(userStr);
+        Optional<Users> recipient = Optional.ofNullable(userRepo.findByUserId(message.getReceiver()));
 
-        if(users.size() < 2) {
-            for(Users user : users) {
-                String userId = user.getUserId();
-                if(!userStr.contains(userId)) {
-                    throw new UserDoesNotExistException(String.format("User %s does not exists in the database.", userId));
-                }
-            }
+        if(!recipient.isPresent()) {
+            throw new UserDoesNotExistException(String.format("User %s doesn't exists in the database", message.getReceiver()));
         }
-
-//        Users poster = userRepo.findByUserId(sender);
-//
-//        Optional<Users> recipient = Optional.ofNullable(userRepo.findByUserId(message.getReceiver()));
-//
-//        if(!recipient.isPresent()) {
-//            throw new UserDoesNotExistException(String.format("User %s doesn't exists in the database", message.getReceiver()));
-//        }
     }
 }
