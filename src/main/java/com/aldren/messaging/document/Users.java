@@ -1,4 +1,4 @@
-package com.aldren.messaging.model;
+package com.aldren.messaging.document;
 
 import lombok.Getter;
 import lombok.Setter;
