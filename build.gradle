@@ -16,6 +16,7 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-dependencies:2.1.5.RELEASE'
     compile 'org.springframework.boot:spring-boot-starter-web:2.1.5.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-data-mongodb:2.1.5.RELEASE'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.9.10'
     compile 'org.apache.commons:commons-lang3:3.9'
     compile 'org.modelmapper:modelmapper:2.3.5'
