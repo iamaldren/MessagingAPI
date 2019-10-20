@@ -20,7 +20,7 @@ public class MessageController {
         return Response.builder()
                 .timestamp(DateFormatUtils.format(new Date(), "yyyy-MM-dd'T'HH:mm:ss.SSSZ"))
                 .status(HttpStatus.OK.value())
-                .information(HttpStatus.OK.toString())
+                .information(HttpStatus.OK.name())
                 .message(message)
                 .build();
     }
