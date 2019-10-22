@@ -1,10 +1,9 @@
 package com.aldren.messaging.controller;
 
+import com.aldren.messaging.exception.ReadMessageFailException;
 import com.aldren.messaging.exception.UserDoesNotExistException;
 import com.aldren.messaging.model.Message;
 import com.aldren.messaging.model.Response;
-import com.aldren.messaging.document.Users;
-import com.aldren.messaging.repository.UsersRepository;
 import com.aldren.messaging.service.MessageService;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
@@ -22,8 +22,14 @@ public class MessageController {
     @Autowired
     private MessageService svc;
 
+    @GetMapping("/message/read")
+    public List<Message> read(HttpServletRequest request) throws ReadMessageFailException {
+        String user = request.getHeader("X-User");
+        return svc.read(user);
+    }
+
     @PostMapping("/message/send")
-    public Response send(HttpServletRequest request, @RequestBody Message message) throws UserDoesNotExistException {
+    public Response send(HttpServletRequest request, @RequestBody Message message) throws UserDoesNotExistException, ParseException {
         String user = request.getHeader("X-User");
 
         svc.send(user, message);

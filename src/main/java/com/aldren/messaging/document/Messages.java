@@ -5,6 +5,8 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Date;
+
 @Getter
 @Setter
 @Document(collection = "messages")
@@ -21,7 +23,7 @@ public class Messages {
 
     private String content;
 
-    private String sentDate;
+    private Date sentDate;
 
     private String status;
 

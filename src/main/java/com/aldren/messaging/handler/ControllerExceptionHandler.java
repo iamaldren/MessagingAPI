@@ -1,10 +1,10 @@
 package com.aldren.messaging.handler;
 
 import com.aldren.messaging.constants.HelperConstants;
+import com.aldren.messaging.exception.ReadMessageFailException;
 import com.aldren.messaging.exception.UserDoesNotExistException;
 import com.aldren.messaging.model.Response;
 import org.apache.commons.lang3.time.DateFormatUtils;
-import org.apache.tomcat.util.http.parser.HttpParser;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -23,6 +23,17 @@ public class ControllerExceptionHandler {
                 .timestamp(DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT))
                 .status(HttpStatus.NOT_FOUND.value())
                 .description(HttpStatus.NOT_FOUND.name())
+                .information(e.getLocalizedMessage())
+                .build();
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler({ReadMessageFailException.class})
+    public Response handleBadRequestException(Exception e, WebRequest u) {
+        return Response.builder()
+                .timestamp(DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT))
+                .status(HttpStatus.BAD_REQUEST.value())
+                .description(HttpStatus.BAD_REQUEST.name())
                 .information(e.getLocalizedMessage())
                 .build();
     }

@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Date;
+
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -19,6 +21,6 @@ public class Message {
 
     private String content;
 
-    private String sentDate;
+    private Date sentDate;
 
 }
