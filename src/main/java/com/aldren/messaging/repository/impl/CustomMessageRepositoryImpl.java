@@ -6,6 +6,7 @@ import com.aldren.messaging.repository.CustomMessageRepository;
 import com.mongodb.client.model.UpdateOneModel;
 import com.mongodb.client.model.WriteModel;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
@@ -15,13 +16,14 @@ import java.util.stream.Collectors;
 public class CustomMessageRepositoryImpl implements CustomMessageRepository {
 
     private static final String MESSAGES = "messages";
+
     @Autowired
     private MongoTemplate mongoTemplate;
 
     @Override
     public int updateMessageStatus(List<Messages> messages) {
         List<WriteModel<Document>> update = messages.stream().map(message -> new UpdateOneModel<Document>(
-                new Document("_id", message.getId()), // filter
+                new Document("_id", new ObjectId(message.getId())), // filter
                 new Document("$set", new Document("status", EnumConstants.MessageStatus.READ.toString())) // update
         )).collect(Collectors.toList());
 

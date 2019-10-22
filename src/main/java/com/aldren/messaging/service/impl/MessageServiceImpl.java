@@ -10,6 +10,7 @@ import com.aldren.messaging.model.Message;
 import com.aldren.messaging.repository.MessagesRepository;
 import com.aldren.messaging.repository.UsersRepository;
 import com.aldren.messaging.service.MessageService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.modelmapper.ModelMapper;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class MessageServiceImpl implements MessageService {
 
@@ -62,7 +64,9 @@ public class MessageServiceImpl implements MessageService {
 
         int updateCount = msgRepo.updateMessageStatus(messages);
         if (updateCount < messages.size()) {
-            throw new ReadMessageFailException("Something went wrong when reading the message.");
+            log.info("updateCount::" + updateCount);
+            log.info("message size::" + messages.size());
+            throw new ReadMessageFailException("Something went wrong in reading the message.");
         }
 
         return messages.stream().map(message -> {
