@@ -15,6 +15,10 @@ import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -60,20 +64,56 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public List<Message> read(String receiver) throws ReadMessageFailException {
-        List<Messages> messages = msgRepo.findUnreadMessages();
+        List<Messages> messages = msgRepo.findUnreadMessages(getSort());
 
-        int updateCount = msgRepo.updateMessageStatus(messages);
-        if (updateCount < messages.size()) {
-            log.info("updateCount::" + updateCount);
-            log.info("message size::" + messages.size());
-            throw new ReadMessageFailException("Something went wrong in reading the message.");
+        if (messages == null || !messages.isEmpty()) {
+            int updateCount = msgRepo.updateMessageStatus(messages);
+            if (updateCount < messages.size()) {
+                throw new ReadMessageFailException("Something went wrong in reading the message.");
+            }
         }
 
-        return messages.stream().map(message -> {
-            message.setSender(userRepo.findByPrimaryId(message.getSender()).get(0).getUserId());
-            message.setReceiver(receiver);
-            return mapMessage(message);
-        }).collect(Collectors.toList());
+        return messages.stream().map(this::convertMessage).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Message> listMessages(String user, int page, String role) {
+        Users users = userRepo.findByUserId(user);
+
+        Pageable pageable = PageRequest.of(page, HelperConstants.PAGE_ITEMS_COUNT, getSort());
+
+        Page<Messages> messages = null;
+        if (HelperConstants.SENDER.equals(role)) {
+            messages = listSentMessages(users.getId(), pageable);
+        }
+
+        if (HelperConstants.RECEIVER.equals(role)) {
+            messages = listReceivedMessages(users.getId(), pageable);
+        }
+
+        if (messages == null) {
+            throw new NullPointerException("Oops! Something went wrong. Please contact tech support.");
+        }
+
+        return messages.getContent().stream().map(this::convertMessage).collect(Collectors.toList());
+    }
+
+    private Sort getSort() {
+        return new Sort(Sort.Direction.DESC, "sentDate");
+    }
+
+    private Page<Messages> listReceivedMessages(String userId, Pageable pageable) {
+        return msgRepo.findAllReceivedMessages(userId, pageable);
+    }
+
+    private Page<Messages> listSentMessages(String userId, Pageable pageable) {
+        return msgRepo.findAllSentMessages(userId, pageable);
+    }
+
+    private Message convertMessage(Messages messages) {
+        messages.setSender(userRepo.findByPrimaryId(messages.getSender()).get(0).getUserId());
+        messages.setReceiver(userRepo.findByPrimaryId(messages.getReceiver()).get(0).getUserId());
+        return mapMessage(messages);
     }
 
     private Messages mapMessage(Message message) {

@@ -1,5 +1,6 @@
 package com.aldren.messaging.controller;
 
+import com.aldren.messaging.constants.HelperConstants;
 import com.aldren.messaging.exception.ReadMessageFailException;
 import com.aldren.messaging.exception.UserDoesNotExistException;
 import com.aldren.messaging.model.Message;
@@ -40,6 +41,18 @@ public class MessageController {
                 .description(HttpStatus.OK.name())
                 .message(message)
                 .build();
+    }
+
+    @GetMapping("/message/sent")
+    public List<Message> sent(HttpServletRequest request, @RequestParam int page) throws UserDoesNotExistException, ParseException {
+        String user = request.getHeader("X-User");
+        return svc.listMessages(user, page, HelperConstants.SENDER);
+    }
+
+    @GetMapping("/message/receive")
+    public List<Message> receive(HttpServletRequest request, @RequestParam int page) throws UserDoesNotExistException, ParseException {
+        String user = request.getHeader("X-User");
+        return svc.listMessages(user, page, HelperConstants.RECEIVER);
     }
 
 }

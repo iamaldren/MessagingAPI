@@ -13,4 +13,6 @@ public interface MessageService {
 
     List<Message> read(String receiver) throws ReadMessageFailException;
 
+    List<Message> listMessages(String user, int page, String role);
+
 }
