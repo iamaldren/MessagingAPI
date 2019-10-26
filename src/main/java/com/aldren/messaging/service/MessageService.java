@@ -15,4 +15,6 @@ public interface MessageService {
 
     List<Message> listMessages(String user, int page, String role);
 
+    String messageCountPrediction(String type);
+
 }

@@ -39,6 +39,8 @@ public class MessageServiceImpl implements MessageService {
 
     private ModelMapper mapper = new ModelMapper();
 
+    private static final long DAY_IN_MS = 1000 * 60 * 60 * 24;
+
     @Override
     public void send(String sender, Message message) throws UserDoesNotExistException, ParseException {
         Users poster = userRepo.findByUserId(sender);
@@ -98,6 +100,16 @@ public class MessageServiceImpl implements MessageService {
         return messages.getContent().stream().map(this::convertMessage).collect(Collectors.toList());
     }
 
+    @Override
+    public String messageCountPrediction(String type) {
+        switch(type.toLowerCase()) {
+            case HelperConstants.DAY:
+                return predictMessageCountForTheDay();
+            default:
+                return predictMessageCountForTheWeek();
+        }
+    }
+
     private Sort getSort() {
         return new Sort(Sort.Direction.DESC, "sentDate");
     }
@@ -108,6 +120,16 @@ public class MessageServiceImpl implements MessageService {
 
     private Page<Messages> listSentMessages(String userId, Pageable pageable) {
         return msgRepo.findAllSentMessages(userId, pageable);
+    }
+
+    private String predictMessageCountForTheDay() {
+        int count = msgRepo.messageCountByDateDuration(new Date(System.currentTimeMillis() - (14 * DAY_IN_MS)), new Date());
+        return String.format("Predicted message count to receive for the day is %d", (count/14));
+    }
+
+    private String predictMessageCountForTheWeek() {
+        int count = msgRepo.messageCountByDateDuration(new Date(System.currentTimeMillis() - (30 * DAY_IN_MS)), new Date());
+        return String.format("Predicted message count to receive for the week is %d", (count/4));
     }
 
     private Message convertMessage(Messages messages) {
