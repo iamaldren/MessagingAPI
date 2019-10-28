@@ -5,21 +5,24 @@ import com.aldren.messaging.exception.BadRequestException;
 import com.aldren.messaging.exception.ReadMessageFailException;
 import com.aldren.messaging.exception.UserDoesNotExistException;
 import com.aldren.messaging.model.Response;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 
 import java.util.Date;
 
+@Slf4j
 @ControllerAdvice
 public class ControllerExceptionHandler {
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler({ReadMessageFailException.class, BadRequestException.class})
-    public Response handleBadRequestException(Exception e, WebRequest u) {
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public @ResponseBody Response handleBadRequestException(Exception e, WebRequest u) {
         return Response.builder()
                 .timestamp(DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT))
                 .status(HttpStatus.BAD_REQUEST.value())
@@ -28,9 +31,9 @@ public class ControllerExceptionHandler {
                 .build();
     }
 
-    @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler({UserDoesNotExistException.class})
-    public Response handleNotFoundException(Exception e, WebRequest u) {
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public @ResponseBody Response handleNotFoundException(Exception e, WebRequest u) {
         return Response.builder()
                 .timestamp(DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT))
                 .status(HttpStatus.NOT_FOUND.value())
