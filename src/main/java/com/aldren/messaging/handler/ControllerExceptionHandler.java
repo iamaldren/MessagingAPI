@@ -22,7 +22,8 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler({ReadMessageFailException.class, BadRequestException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public @ResponseBody Response handleBadRequestException(Exception e, WebRequest u) {
+    public @ResponseBody
+    Response handleBadRequestException(Exception e, WebRequest u) {
         return Response.builder()
                 .timestamp(DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT))
                 .status(HttpStatus.BAD_REQUEST.value())
@@ -33,7 +34,8 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler({UserDoesNotExistException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public @ResponseBody Response handleNotFoundException(Exception e, WebRequest u) {
+    public @ResponseBody
+    Response handleNotFoundException(Exception e, WebRequest u) {
         return Response.builder()
                 .timestamp(DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT))
                 .status(HttpStatus.NOT_FOUND.value())

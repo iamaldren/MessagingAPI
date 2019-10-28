@@ -15,7 +15,10 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -49,7 +52,7 @@ public class MessageController {
     @GetMapping("/message/sent")
     public List<Message> sent(HttpServletRequest request, @RequestParam int page) throws UserDoesNotExistException, ParseException {
         String user = request.getHeader("X-User");
-        return svc.listMessages(user, (page-1), HelperConstants.SENDER);
+        return svc.listMessages(user, (page - 1), HelperConstants.SENDER);
     }
 
     @GetMapping("/message/receive")
@@ -60,7 +63,7 @@ public class MessageController {
 
     @GetMapping("/message/predict")
     public Response predict(@RequestParam String type) throws BadRequestException {
-        if(!typeValues.contains(type)) {
+        if (!typeValues.contains(type)) {
             throw new BadRequestException("Type entered is not supported. Day/Week computation are the currently supported count prediction.");
         }
 

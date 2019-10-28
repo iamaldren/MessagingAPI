@@ -29,8 +29,8 @@ public class TestService {
         Users sender = users.findByUserId("tonystark");
         Users receiver = users.findByUserId("steverogers");
 
-        for(int i = 0; i < 30; i++) {
-            int daysAgo = (30-i);
+        for (int i = 0; i < 30; i++) {
+            int daysAgo = (30 - i);
 
             long DAY_IN_MS = 1000 * 60 * 60 * 24;
             String date = DateFormatUtils.format(new Date(System.currentTimeMillis() - (daysAgo * DAY_IN_MS)), HelperConstants.TIMESTAMP_FORMAT);
@@ -38,7 +38,7 @@ public class TestService {
             List<Messages> messages = new ArrayList<>();
 
             int j = 0;
-            while(j < (i+1)) {
+            while (j < (i + 1)) {
                 Messages message = new Messages();
                 message.setSender(sender.getId());
                 message.setReceiver(receiver.getId());

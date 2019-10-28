@@ -31,15 +31,12 @@ import java.util.stream.Collectors;
 @Service
 public class MessageServiceImpl implements MessageService {
 
+    private static final long DAY_IN_MS = 1000 * 60 * 60 * 24;
     @Autowired
     private UsersRepository userRepo;
-
     @Autowired
     private MessagesRepository msgRepo;
-
     private ModelMapper mapper = new ModelMapper();
-
-    private static final long DAY_IN_MS = 1000 * 60 * 60 * 24;
 
     @Override
     public void send(String sender, Message message) throws UserDoesNotExistException, ParseException {
@@ -102,7 +99,7 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public String messageCountPrediction(String type) {
-        switch(type.toLowerCase()) {
+        switch (type.toLowerCase()) {
             case HelperConstants.DAY:
                 return predictMessageCountForTheDay();
             default:
@@ -124,12 +121,12 @@ public class MessageServiceImpl implements MessageService {
 
     private String predictMessageCountForTheDay() {
         int count = msgRepo.messageCountByDateDuration(new Date(System.currentTimeMillis() - (14 * DAY_IN_MS)), new Date());
-        return String.format("Predicted message count to receive for the day is %d", (count/14));
+        return String.format("Predicted message count to receive for the day is %d", (count / 14));
     }
 
     private String predictMessageCountForTheWeek() {
         int count = msgRepo.messageCountByDateDuration(new Date(System.currentTimeMillis() - (30 * DAY_IN_MS)), new Date());
-        return String.format("Predicted message count to receive for the week is %d", (count/4));
+        return String.format("Predicted message count to receive for the week is %d", (count / 4));
     }
 
     private Message convertMessage(Messages messages) {
