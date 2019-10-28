@@ -11,8 +11,8 @@ import java.util.List;
 
 public interface MessagesRepository extends MongoRepository<Messages, Long>, CustomMessageRepository {
 
-    @Query(value = "{'status' : 'UNREAD'}")
-    List<Messages> findUnreadMessages(Sort sort);
+    @Query(value = "{'receiver' : ?0, 'status' : 'UNREAD'}")
+    List<Messages> findUnreadMessages(String user, Sort sort);
 
     @Query(value = "{'receiver' : ?0}")
     Page<Messages> findAllReceivedMessages(String user, Pageable pageable);

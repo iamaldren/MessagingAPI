@@ -22,9 +22,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -42,28 +40,40 @@ public class MessageServiceImpl implements MessageService {
     public void send(String sender, Message message) throws UserDoesNotExistException, ParseException {
         Users poster = userRepo.findByUserId(sender);
 
-        Optional<Users> recipient = Optional.ofNullable(userRepo.findByUserId(message.getReceiver()));
-
         message.setSender(sender);
 
         String date = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
         message.setSentDate(DateUtils.parseDate(date, HelperConstants.TIMESTAMP_FORMAT));
 
-        if (!recipient.isPresent()) {
-            throw new UserDoesNotExistException(String.format("User %s doesn't exists in the database", message.getReceiver()));
+        List<Messages> msgList = new ArrayList<>();
+        String[] recipients = new String[]{message.getReceiver()};
+        if(message.getReceiver().contains(",")) {
+            String receiver = message.getReceiver().endsWith(",") ? message.getReceiver().substring(0, message.getReceiver().lastIndexOf(",")) : message.getReceiver();
+            recipients = receiver.split(",");
         }
 
-        Messages messages = mapMessage(message);
-        messages.setSender(poster.getId());
-        messages.setReceiver(recipient.get().getId());
-        messages.setStatus(EnumConstants.MessageStatus.UNREAD.toString());
+        for(int i=0; i < recipients.length; i++) {
+            Optional<Users> recipient = Optional.ofNullable(userRepo.findByUserId(recipients[i]));
 
-        msgRepo.save(messages);
+            if (!recipient.isPresent()) {
+                throw new UserDoesNotExistException(String.format("User %s doesn't exists in the database", message.getReceiver()));
+            }
+
+            Messages messages = mapMessage(message);
+            messages.setSender(poster.getId());
+            messages.setReceiver(recipient.get().getId());
+            messages.setStatus(EnumConstants.MessageStatus.UNREAD.toString());
+
+            msgList.add(messages);
+        }
+
+        msgRepo.saveAll(msgList);
     }
 
     @Override
     public List<Message> read(String receiver) throws ReadMessageFailException {
-        List<Messages> messages = msgRepo.findUnreadMessages(getSort());
+        Users recipient = userRepo.findByUserId(receiver);
+        List<Messages> messages = msgRepo.findUnreadMessages(recipient.getId(), getSort());
 
         if (messages == null || !messages.isEmpty()) {
             int updateCount = msgRepo.updateMessageStatus(messages);
