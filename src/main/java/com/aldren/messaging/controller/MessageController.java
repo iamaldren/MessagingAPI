@@ -49,7 +49,7 @@ public class MessageController {
     @GetMapping("/message/sent")
     public List<Message> sent(HttpServletRequest request, @RequestParam int page) throws UserDoesNotExistException, ParseException {
         String user = request.getHeader("X-User");
-        return svc.listMessages(user, page, HelperConstants.SENDER);
+        return svc.listMessages(user, (page-1), HelperConstants.SENDER);
     }
 
     @GetMapping("/message/receive")

@@ -47,18 +47,18 @@ public class MessageServiceImpl implements MessageService {
 
         Optional<Users> recipient = Optional.ofNullable(userRepo.findByUserId(message.getReceiver()));
 
+        message.setSender(sender);
+
         String date = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
         message.setSentDate(DateUtils.parseDate(date, HelperConstants.TIMESTAMP_FORMAT));
 
         if (!recipient.isPresent()) {
-            message.setSender(sender);
             throw new UserDoesNotExistException(String.format("User %s doesn't exists in the database", message.getReceiver()));
         }
 
-        message.setSender(poster.getId());
-        message.setReceiver(recipient.get().getId());
-
         Messages messages = mapMessage(message);
+        messages.setSender(poster.getId());
+        messages.setReceiver(recipient.get().getId());
         messages.setStatus(EnumConstants.MessageStatus.UNREAD.toString());
 
         msgRepo.save(messages);
