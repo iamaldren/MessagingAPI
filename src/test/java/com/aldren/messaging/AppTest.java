@@ -25,9 +25,6 @@ public class AppTest {
     @Autowired
     private MockMvc mockMvc;
 
-    /**
-     * Rigorous Test :-)
-     */
     @Test
     public void shouldAnswerWithTrue() {
         assertTrue(true);
