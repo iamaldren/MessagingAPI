@@ -22,7 +22,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -45,29 +47,18 @@ public class MessageServiceImpl implements MessageService {
         String date = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
         message.setSentDate(DateUtils.parseDate(date, HelperConstants.TIMESTAMP_FORMAT));
 
-        List<Messages> msgList = new ArrayList<>();
-        String[] recipients = new String[]{message.getReceiver()};
-        if(message.getReceiver().contains(",")) {
-            String receiver = message.getReceiver().endsWith(",") ? message.getReceiver().substring(0, message.getReceiver().lastIndexOf(",")) : message.getReceiver();
-            recipients = receiver.split(",");
+        Optional<Users> recipient = Optional.ofNullable(userRepo.findByUserId(message.getReceiver()));
+
+        if (!recipient.isPresent()) {
+            throw new UserDoesNotExistException(String.format("User %s doesn't exists in the database", message.getReceiver()));
         }
 
-        for(int i=0; i < recipients.length; i++) {
-            Optional<Users> recipient = Optional.ofNullable(userRepo.findByUserId(recipients[i]));
+        Messages messages = mapMessage(message);
+        messages.setSender(poster.getId());
+        messages.setReceiver(recipient.get().getId());
+        messages.setStatus(EnumConstants.MessageStatus.UNREAD.toString());
 
-            if (!recipient.isPresent()) {
-                throw new UserDoesNotExistException(String.format("User %s doesn't exists in the database", message.getReceiver()));
-            }
-
-            Messages messages = mapMessage(message);
-            messages.setSender(poster.getId());
-            messages.setReceiver(recipient.get().getId());
-            messages.setStatus(EnumConstants.MessageStatus.UNREAD.toString());
-
-            msgList.add(messages);
-        }
-
-        msgRepo.saveAll(msgList);
+        msgRepo.save(messages);
     }
 
     @Override
@@ -75,7 +66,7 @@ public class MessageServiceImpl implements MessageService {
         Users recipient = userRepo.findByUserId(receiver);
         List<Messages> messages = msgRepo.findUnreadMessages(recipient.getId(), getSort());
 
-        if (messages == null || !messages.isEmpty()) {
+        if (!messages.isEmpty()) {
             int updateCount = msgRepo.updateMessageStatus(messages);
             if (updateCount < messages.size()) {
                 throw new ReadMessageFailException("Something went wrong in reading the message.");
