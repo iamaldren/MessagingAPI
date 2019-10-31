@@ -1,1 +1,5 @@
 language: java
+test:
+  post:
+    - if [ -e ./gradlew ]; then ./gradlew jacocoTestReport;else gradle jacocoTestReport;fi
+    - bash <(curl -s https://codecov.io/bash) -t 3b9a7fd5-3be6-42d3-8980-4a0317a05561
