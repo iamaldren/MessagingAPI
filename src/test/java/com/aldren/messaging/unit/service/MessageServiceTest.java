@@ -1,8 +1,5 @@
 package com.aldren.messaging.unit.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-
 import com.aldren.messaging.constants.EnumConstants;
 import com.aldren.messaging.constants.HelperConstants;
 import com.aldren.messaging.document.Messages;
@@ -30,24 +27,23 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {MessageServiceImpl.class})
 public class MessageServiceTest {
-
-    @Autowired
-    private MessageService svc;
-
-    @MockBean
-    private UsersRepository userRepo;
-
-    @MockBean
-    private MessagesRepository msgRepo;
 
     private static final String SENDER = "tonystark";
     private static final String RECEIVER = "steverogers";
     private static final String SENDER_ID = "0000001";
     private static final String RECEIVER_ID = "0000001";
-
+    @Autowired
+    private MessageService svc;
+    @MockBean
+    private UsersRepository userRepo;
+    @MockBean
+    private MessagesRepository msgRepo;
     private Users sender = new Users();
     private Users receiver = new Users();
     private Message message = new Message();

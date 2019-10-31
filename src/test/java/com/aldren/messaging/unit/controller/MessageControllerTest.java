@@ -33,18 +33,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(MessageController.class)
 public class MessageControllerTest {
 
-    public MockMvc mvc;
-
-    @Autowired
-    private WebApplicationContext webApplicationContext;
-
-    @MockBean
-    private MessageService svc;
-
     private static final String SENDER = "tonystark";
     private static final String RECEIVER = "steverogers";
-
     private static final String X_USER_HEADER = "X-User";
+    public MockMvc mvc;
+    @Autowired
+    private WebApplicationContext webApplicationContext;
+    @MockBean
+    private MessageService svc;
 
     @Before
     public void init() {
