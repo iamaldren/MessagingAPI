@@ -50,15 +50,15 @@ public class MessageController {
     }
 
     @GetMapping("/message/sent")
-    public List<Message> sent(HttpServletRequest request, @RequestParam int page) throws UserDoesNotExistException, ParseException {
+    public List<Message> sent(HttpServletRequest request, @RequestParam int page) {
         String user = request.getHeader("X-User");
         return svc.listMessages(user, (page - 1), HelperConstants.SENDER);
     }
 
     @GetMapping("/message/receive")
-    public List<Message> receive(HttpServletRequest request, @RequestParam int page) throws UserDoesNotExistException, ParseException {
+    public List<Message> receive(HttpServletRequest request, @RequestParam int page) {
         String user = request.getHeader("X-User");
-        return svc.listMessages(user, page, HelperConstants.RECEIVER);
+        return svc.listMessages(user, (page - 1), HelperConstants.RECEIVER);
     }
 
     @GetMapping("/message/predict")

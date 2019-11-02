@@ -160,6 +160,140 @@ public class MessageControllerTest {
                 .andExpect(jsonPath("$.description", is(HttpStatus.INTERNAL_SERVER_ERROR.name())));
     }
 
+    @Test
+    public void sentTest() throws Exception {
+        Message message1 = new Message();
+        message1.setSender(USER1);
+        message1.setReceiver(USER2);
+        message1.setSubject("Test 1");
+        message1.setContent("Message Content 1");
+
+        String date1 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
+        message1.setSentDate(DateUtils.parseDate(date1, HelperConstants.TIMESTAMP_FORMAT));
+
+        Message message2 = new Message();
+        message2.setSender(USER1);
+        message2.setReceiver(USER4);
+        message2.setSubject("Test 2");
+        message2.setContent("Message Content 2");
+
+        String date2 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
+        message2.setSentDate(DateUtils.parseDate(date2, HelperConstants.TIMESTAMP_FORMAT));
+
+        Message message3 = new Message();
+        message3.setSender(USER1);
+        message3.setReceiver(USER3);
+        message3.setSubject("Test 3");
+        message3.setContent("Message Content 3");
+
+        String date3 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
+        message3.setSentDate(DateUtils.parseDate(date3, HelperConstants.TIMESTAMP_FORMAT));
+
+        List<Message> messages = new ArrayList<>();
+        messages.add(message3);
+        messages.add(message2);
+        messages.add(message1);
+
+        Mockito.when(svc.listMessages(eq(USER1), eq(0), eq(HelperConstants.SENDER))).thenReturn(messages);
+
+        mvc.perform(get("/api/v1/message/sent?page=1")
+                .header(X_USER_HEADER, USER1))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$[0].subject", is("Test 3")))
+                .andExpect(jsonPath("$[0].content", is("Message Content 3")))
+                .andExpect(jsonPath("$[0].sender", is(USER1)))
+                .andExpect(jsonPath("$[1].subject", is("Test 2")))
+                .andExpect(jsonPath("$[1].content", is("Message Content 2")))
+                .andExpect(jsonPath("$[1].sender", is(USER1)))
+                .andExpect(jsonPath("$[2].subject", is("Test 1")))
+                .andExpect(jsonPath("$[2].content", is("Message Content 1")))
+                .andExpect(jsonPath("$[2].sender", is(USER1)));
+    }
+
+    @Test
+    public void receiveTest() throws Exception {
+        Message message1 = new Message();
+        message1.setSender(USER1);
+        message1.setReceiver(USER2);
+        message1.setSubject("Test 1");
+        message1.setContent("Message Content 1");
+
+        String date1 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
+        message1.setSentDate(DateUtils.parseDate(date1, HelperConstants.TIMESTAMP_FORMAT));
+
+        Message message2 = new Message();
+        message2.setSender(USER5);
+        message2.setReceiver(USER2);
+        message2.setSubject("Test 2");
+        message2.setContent("Message Content 2");
+
+        String date2 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
+        message2.setSentDate(DateUtils.parseDate(date2, HelperConstants.TIMESTAMP_FORMAT));
+
+        Message message3 = new Message();
+        message3.setSender(USER4);
+        message3.setReceiver(USER2);
+        message3.setSubject("Test 3");
+        message3.setContent("Message Content 3");
+
+        String date3 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
+        message3.setSentDate(DateUtils.parseDate(date3, HelperConstants.TIMESTAMP_FORMAT));
+
+        List<Message> messages = new ArrayList<>();
+        messages.add(message3);
+        messages.add(message2);
+        messages.add(message1);
+
+        Mockito.when(svc.listMessages(eq(USER2), eq(0), eq(HelperConstants.RECEIVER))).thenReturn(messages);
+
+        mvc.perform(get("/api/v1/message/receive?page=1")
+                .header(X_USER_HEADER, USER2))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$[0].subject", is("Test 3")))
+                .andExpect(jsonPath("$[0].content", is("Message Content 3")))
+                .andExpect(jsonPath("$[0].receiver", is(USER2)))
+                .andExpect(jsonPath("$[1].subject", is("Test 2")))
+                .andExpect(jsonPath("$[1].content", is("Message Content 2")))
+                .andExpect(jsonPath("$[1].receiver", is(USER2)))
+                .andExpect(jsonPath("$[2].subject", is("Test 1")))
+                .andExpect(jsonPath("$[2].content", is("Message Content 1")))
+                .andExpect(jsonPath("$[2].receiver", is(USER2)));
+    }
+
+    @Test
+    public void testPredictMessageForTheDay() throws Exception {
+        String message = "Predicted message count to receive for the day is 171";
+        Mockito.when(svc.messageCountPrediction(Mockito.anyString())).thenReturn(message);
+
+        mvc.perform(get("/api/v1/message/predict?type=Day"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", is(HttpStatus.OK.value())))
+                .andExpect(jsonPath("$.description", is(HttpStatus.OK.name())))
+                .andExpect(jsonPath("$.information", is(message)));
+    }
+
+    @Test
+    public void testPredictMessageForTheWeek() throws Exception {
+        String message = "Predicted message count to receive for the week is 1468";
+        Mockito.when(svc.messageCountPrediction(Mockito.anyString())).thenReturn(message);
+
+        mvc.perform(get("/api/v1/message/predict?type=WEEK"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", is(HttpStatus.OK.value())))
+                .andExpect(jsonPath("$.description", is(HttpStatus.OK.name())))
+                .andExpect(jsonPath("$.information", is(message)));
+    }
+
+    @Test
+    public void testPredictMessageThrowBadRequestException() throws Exception {
+        mvc.perform(get("/api/v1/message/predict?type=month"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status", is(HttpStatus.BAD_REQUEST.value())))
+                .andExpect(jsonPath("$.description", is(HttpStatus.BAD_REQUEST.name())));
+    }
+
     private String convertObject(Message message) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writer().withDefaultPrettyPrinter().writeValueAsString(message);
