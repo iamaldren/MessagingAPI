@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 
+import java.text.ParseException;
 import java.util.Date;
 
 @Slf4j
@@ -40,6 +41,18 @@ public class ControllerExceptionHandler {
                 .timestamp(DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT))
                 .status(HttpStatus.NOT_FOUND.value())
                 .description(HttpStatus.NOT_FOUND.name())
+                .information(e.getLocalizedMessage())
+                .build();
+    }
+
+    @ExceptionHandler({ParseException.class, NullPointerException.class})
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public @ResponseBody
+    Response handleInternalServerException(Exception e, WebRequest u) {
+        return Response.builder()
+                .timestamp(DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT))
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .description(HttpStatus.INTERNAL_SERVER_ERROR.name())
                 .information(e.getLocalizedMessage())
                 .build();
     }

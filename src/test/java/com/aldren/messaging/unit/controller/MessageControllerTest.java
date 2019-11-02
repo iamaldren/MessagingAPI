@@ -70,7 +70,7 @@ public class MessageControllerTest {
         message1.setSentDate(DateUtils.parseDate(date1, HelperConstants.TIMESTAMP_FORMAT));
 
         Message message2 = new Message();
-        message2.setSender(USER1);
+        message2.setSender(USER5);
         message2.setReceiver(USER2);
         message2.setSubject("Test 2");
         message2.setContent("Message Content 2");
@@ -90,8 +90,10 @@ public class MessageControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].subject", is("Test 2")))
                 .andExpect(jsonPath("$[0].content", is("Message Content 2")))
+                .andExpect(jsonPath("$[0].sender", is(USER5)))
                 .andExpect(jsonPath("$[1].subject", is("Test 1")))
-                .andExpect(jsonPath("$[1].content", is("Message Content 1")));
+                .andExpect(jsonPath("$[1].content", is("Message Content 1")))
+                .andExpect(jsonPath("$[1].sender", is(USER1)));
     }
 
     @Test
@@ -138,6 +140,24 @@ public class MessageControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status", is(HttpStatus.NOT_FOUND.value())))
                 .andExpect(jsonPath("$.description", is(HttpStatus.NOT_FOUND.name())));
+    }
+
+    @Test
+    public void sendTestParseException() throws Exception {
+        Message message = new Message();
+        message.setReceiver("USER3");
+        message.setSubject("Avengers Initiative");
+        message.setContent("Let's start the initiative, and start gathering members.");
+
+        Mockito.doThrow(ParseException.class).when(svc).send(Mockito.anyString(), Mockito.any());
+
+        mvc.perform(post("/api/v1/message/send")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(convertObject(message))
+                .header(X_USER_HEADER, USER4))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.status", is(HttpStatus.INTERNAL_SERVER_ERROR.value())))
+                .andExpect(jsonPath("$.description", is(HttpStatus.INTERNAL_SERVER_ERROR.name())));
     }
 
     private String convertObject(Message message) throws JsonProcessingException {
