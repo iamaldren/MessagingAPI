@@ -4,6 +4,8 @@ public class HelperConstants {
 
     public static final String TIMESTAMP_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
+    public static final long DAY_IN_MS = 1000 * 60 * 60 * 24;
+
     public static final String SENDER = "sender";
     public static final String RECEIVER = "receiver";
 

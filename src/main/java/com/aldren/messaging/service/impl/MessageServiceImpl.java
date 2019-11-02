@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 @Service
 public class MessageServiceImpl implements MessageService {
 
-    private static final long DAY_IN_MS = 1000 * 60 * 60 * 24;
     @Autowired
     private UsersRepository userRepo;
     @Autowired
@@ -121,13 +120,13 @@ public class MessageServiceImpl implements MessageService {
     }
 
     private String predictMessageCountForTheDay() {
-        int count = msgRepo.messageCountByDateDuration(new Date(System.currentTimeMillis() - (14 * DAY_IN_MS)), new Date());
-        return String.format("Predicted message count to receive for the day is %d", (count / 14));
+        int count = msgRepo.messageCountByDateDuration(new Date(System.currentTimeMillis() - (14 * HelperConstants.DAY_IN_MS)), new Date());
+        return String.format("Predicted message count to receive for the day is %d", Math.round(count / 14));
     }
 
     private String predictMessageCountForTheWeek() {
-        int count = msgRepo.messageCountByDateDuration(new Date(System.currentTimeMillis() - (30 * DAY_IN_MS)), new Date());
-        return String.format("Predicted message count to receive for the week is %d", (count / 4));
+        int count = msgRepo.messageCountByDateDuration(new Date(System.currentTimeMillis() - (30 * HelperConstants.DAY_IN_MS)), new Date());
+        return String.format("Predicted message count to receive for the week is %d", Math.round(count / 4));
     }
 
     private Message convertMessage(Messages messages) {
