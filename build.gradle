@@ -22,6 +22,7 @@ dependencies {
     compile 'org.apache.commons:commons-lang3:3.9'
     compile 'org.modelmapper:modelmapper:2.3.5'
     testCompile 'org.springframework.boot:spring-boot-starter-test:2.1.5.RELEASE'
+    testCompile 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:2.2.0'
 }
 
 group = 'com.aldren.messaging'
