@@ -51,13 +51,21 @@ public class MessageController {
     }
 
     @GetMapping("/message/sent")
-    public MessageList sent(HttpServletRequest request, @RequestParam int page) {
+    public MessageList sent(HttpServletRequest request, @RequestParam int page) throws BadRequestException {
+        if(page < 1) {
+            throw new BadRequestException("Page cannot be less than 1.");
+        }
+
         String user = request.getHeader("X-User");
         return svc.listMessages(user, (page - 1), HelperConstants.SENDER);
     }
 
     @GetMapping("/message/receive")
-    public MessageList receive(HttpServletRequest request, @RequestParam int page) {
+    public MessageList receive(HttpServletRequest request, @RequestParam int page) throws BadRequestException {
+        if(page < 1) {
+            throw new BadRequestException("Page cannot be less than 1.");
+        }
+
         String user = request.getHeader("X-User");
         return svc.listMessages(user, (page - 1), HelperConstants.RECEIVER);
     }

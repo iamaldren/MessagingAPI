@@ -217,6 +217,15 @@ public class MessageControllerTest {
     }
 
     @Test
+    public void sentTestPageLessThan1() throws Exception {
+        mvc.perform(get("/api/v1/message/sent?page=0")
+                .header(X_USER_HEADER, USER4))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status", is(HttpStatus.BAD_REQUEST.value())))
+                .andExpect(jsonPath("$.description", is(HttpStatus.BAD_REQUEST.name())));
+    }
+
+    @Test
     public void receiveTest() throws Exception {
         Message message1 = new Message();
         message1.setSender(USER1);
@@ -269,6 +278,15 @@ public class MessageControllerTest {
                 .andExpect(jsonPath("$.messages[2].subject", is("Test 1")))
                 .andExpect(jsonPath("$.messages[2].content", is("Message Content 1")))
                 .andExpect(jsonPath("$.messages[2].receiver", is(USER2)));
+    }
+
+    @Test
+    public void receiveTestPageLessThan1() throws Exception {
+        mvc.perform(get("/api/v1/message/receive?page=0")
+                .header(X_USER_HEADER, USER4))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status", is(HttpStatus.BAD_REQUEST.value())))
+                .andExpect(jsonPath("$.description", is(HttpStatus.BAD_REQUEST.name())));
     }
 
     @Test
