@@ -14,15 +14,15 @@ import com.aldren.messaging.service.MessageService;
 import com.aldren.messaging.service.impl.MessageServiceImpl;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -30,10 +30,11 @@ import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = {MessageServiceImpl.class})
 public class MessageServiceTest {
 
@@ -60,7 +61,7 @@ public class MessageServiceTest {
     private Users thorodinson = new Users();
     private Message message = new Message();
 
-    @Before
+    @BeforeEach
     public void setUp() {
         tonystark.setId(USER1_ID);
         tonystark.setUserId(USER1);
@@ -135,11 +136,13 @@ public class MessageServiceTest {
         Mockito.verify(msgRepo, Mockito.times(1)).save(Mockito.any());
     }
 
-    @Test(expected = UserDoesNotExistException.class)
+    @Test
     public void testSendFailure() throws UserDoesNotExistException, ParseException {
         Mockito.when(userRepo.findByUserId(message.getReceiver())).thenReturn(null);
 
-        svc.send(USER1, message);
+        assertThrows(UserDoesNotExistException.class, () -> {
+            svc.send(USER1, message);
+        });
 
         Mockito.verify(msgRepo, Mockito.times(0)).save(Mockito.any());
     }
@@ -199,7 +202,7 @@ public class MessageServiceTest {
         assertThat(message.size()).isEqualTo(0);
     }
 
-    @Test(expected = ReadMessageFailException.class)
+    @Test
     public void testReadSuccessWithException() throws ParseException, ReadMessageFailException {
         Messages messages1 = new Messages();
         messages1.setId("000000A");
@@ -230,7 +233,9 @@ public class MessageServiceTest {
         Mockito.when(msgRepo.findUnreadMessages(Mockito.anyString(), Mockito.any())).thenReturn(messages);
         Mockito.when(msgRepo.updateMessageStatus(messages)).thenReturn(1);
 
-        List<Message> message = svc.read(USER2);
+        assertThrows(ReadMessageFailException.class, () -> {
+            List<Message> message = svc.read(USER2);
+        });
     }
 
     @Test
@@ -353,11 +358,13 @@ public class MessageServiceTest {
         assertThat(message.getMessages().get(2).getContent()).isEqualTo(messages1.getContent());
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testListMessagesNull() {
         Mockito.when(msgRepo.findAllReceivedMessages(Mockito.anyString(), Mockito.any())).thenReturn(null);
 
-        MessageList message = svc.listMessages(USER5, 1, HelperConstants.RECEIVER);
+        assertThrows(NullPointerException.class, () -> {
+            MessageList message = svc.listMessages(USER5, 1, HelperConstants.RECEIVER);
+        });
     }
 
     @Test

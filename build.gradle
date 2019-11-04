@@ -21,8 +21,16 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-databind:2.9.10'
     compile 'org.apache.commons:commons-lang3:3.9'
     compile 'org.modelmapper:modelmapper:2.3.5'
-    testCompile 'org.springframework.boot:spring-boot-starter-test:2.1.5.RELEASE'
     testCompile 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:2.2.0'
+    testCompile 'io.vertx:vertx-core:3.8.3'
+    testCompile "org.junit.jupiter:junit-jupiter-api:5.4.2"
+    testCompile "org.junit.jupiter:junit-jupiter-params:5.4.2"
+    testRuntime "org.junit.jupiter:junit-jupiter-engine:5.4.2"
+    testCompile group: 'org.junit.platform', name: 'junit-platform-commons', version: '1.4.2'
+    testCompile group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.4.2'
+    testImplementation('org.springframework.boot:spring-boot-starter-test:2.1.5.RELEASE') {
+        exclude group: 'junit', module: 'junit' //by both name and group
+    }
 }
 
 group = 'com.aldren.messaging'
@@ -40,6 +48,10 @@ publishing {
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
+}
+
+test {
+    useJUnitPlatform()
 }
 
 jacocoTestReport {
