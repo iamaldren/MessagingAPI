@@ -3,6 +3,7 @@ package com.aldren.messaging.service;
 import com.aldren.messaging.exception.ReadMessageFailException;
 import com.aldren.messaging.exception.UserDoesNotExistException;
 import com.aldren.messaging.model.Message;
+import com.aldren.messaging.model.MessageList;
 
 import java.text.ParseException;
 import java.util.List;
@@ -13,7 +14,7 @@ public interface MessageService {
 
     List<Message> read(String receiver) throws ReadMessageFailException;
 
-    List<Message> listMessages(String user, int page, String role);
+    MessageList listMessages(String user, int page, String role);
 
     String messageCountPrediction(String type);
 

@@ -5,6 +5,7 @@ import com.aldren.messaging.exception.BadRequestException;
 import com.aldren.messaging.exception.ReadMessageFailException;
 import com.aldren.messaging.exception.UserDoesNotExistException;
 import com.aldren.messaging.model.Message;
+import com.aldren.messaging.model.MessageList;
 import com.aldren.messaging.model.Response;
 import com.aldren.messaging.service.MessageService;
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -50,13 +51,13 @@ public class MessageController {
     }
 
     @GetMapping("/message/sent")
-    public List<Message> sent(HttpServletRequest request, @RequestParam int page) {
+    public MessageList sent(HttpServletRequest request, @RequestParam int page) {
         String user = request.getHeader("X-User");
         return svc.listMessages(user, (page - 1), HelperConstants.SENDER);
     }
 
     @GetMapping("/message/receive")
-    public List<Message> receive(HttpServletRequest request, @RequestParam int page) {
+    public MessageList receive(HttpServletRequest request, @RequestParam int page) {
         String user = request.getHeader("X-User");
         return svc.listMessages(user, (page - 1), HelperConstants.RECEIVER);
     }

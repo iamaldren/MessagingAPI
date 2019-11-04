@@ -5,6 +5,7 @@ import com.aldren.messaging.controller.MessageController;
 import com.aldren.messaging.exception.ReadMessageFailException;
 import com.aldren.messaging.exception.UserDoesNotExistException;
 import com.aldren.messaging.model.Message;
+import com.aldren.messaging.model.MessageList;
 import com.aldren.messaging.service.MessageService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -194,21 +195,25 @@ public class MessageControllerTest {
         messages.add(message2);
         messages.add(message1);
 
-        Mockito.when(svc.listMessages(eq(USER1), eq(0), eq(HelperConstants.SENDER))).thenReturn(messages);
+        MessageList messageList = new MessageList();
+        messageList.setTotalPage(1);
+        messageList.setMessages(messages);
+
+        Mockito.when(svc.listMessages(eq(USER1), eq(0), eq(HelperConstants.SENDER))).thenReturn(messageList);
 
         mvc.perform(get("/api/v1/message/sent?page=1")
                 .header(X_USER_HEADER, USER1))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(3)))
-                .andExpect(jsonPath("$[0].subject", is("Test 3")))
-                .andExpect(jsonPath("$[0].content", is("Message Content 3")))
-                .andExpect(jsonPath("$[0].sender", is(USER1)))
-                .andExpect(jsonPath("$[1].subject", is("Test 2")))
-                .andExpect(jsonPath("$[1].content", is("Message Content 2")))
-                .andExpect(jsonPath("$[1].sender", is(USER1)))
-                .andExpect(jsonPath("$[2].subject", is("Test 1")))
-                .andExpect(jsonPath("$[2].content", is("Message Content 1")))
-                .andExpect(jsonPath("$[2].sender", is(USER1)));
+                .andExpect(jsonPath("$.messages", hasSize(3)))
+                .andExpect(jsonPath("$.messages[0].subject", is("Test 3")))
+                .andExpect(jsonPath("$.messages[0].content", is("Message Content 3")))
+                .andExpect(jsonPath("$.messages[0].sender", is(USER1)))
+                .andExpect(jsonPath("$.messages[1].subject", is("Test 2")))
+                .andExpect(jsonPath("$.messages[1].content", is("Message Content 2")))
+                .andExpect(jsonPath("$.messages[1].sender", is(USER1)))
+                .andExpect(jsonPath("$.messages[2].subject", is("Test 1")))
+                .andExpect(jsonPath("$.messages[2].content", is("Message Content 1")))
+                .andExpect(jsonPath("$.messages[2].sender", is(USER1)));
     }
 
     @Test
@@ -245,21 +250,25 @@ public class MessageControllerTest {
         messages.add(message2);
         messages.add(message1);
 
-        Mockito.when(svc.listMessages(eq(USER2), eq(0), eq(HelperConstants.RECEIVER))).thenReturn(messages);
+        MessageList messageList = new MessageList();
+        messageList.setTotalPage(1);
+        messageList.setMessages(messages);
+
+        Mockito.when(svc.listMessages(eq(USER2), eq(0), eq(HelperConstants.RECEIVER))).thenReturn(messageList);
 
         mvc.perform(get("/api/v1/message/receive?page=1")
                 .header(X_USER_HEADER, USER2))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(3)))
-                .andExpect(jsonPath("$[0].subject", is("Test 3")))
-                .andExpect(jsonPath("$[0].content", is("Message Content 3")))
-                .andExpect(jsonPath("$[0].receiver", is(USER2)))
-                .andExpect(jsonPath("$[1].subject", is("Test 2")))
-                .andExpect(jsonPath("$[1].content", is("Message Content 2")))
-                .andExpect(jsonPath("$[1].receiver", is(USER2)))
-                .andExpect(jsonPath("$[2].subject", is("Test 1")))
-                .andExpect(jsonPath("$[2].content", is("Message Content 1")))
-                .andExpect(jsonPath("$[2].receiver", is(USER2)));
+                .andExpect(jsonPath("$.messages", hasSize(3)))
+                .andExpect(jsonPath("$.messages[0].subject", is("Test 3")))
+                .andExpect(jsonPath("$.messages[0].content", is("Message Content 3")))
+                .andExpect(jsonPath("$.messages[0].receiver", is(USER2)))
+                .andExpect(jsonPath("$.messages[1].subject", is("Test 2")))
+                .andExpect(jsonPath("$.messages[1].content", is("Message Content 2")))
+                .andExpect(jsonPath("$.messages[1].receiver", is(USER2)))
+                .andExpect(jsonPath("$.messages[2].subject", is("Test 1")))
+                .andExpect(jsonPath("$.messages[2].content", is("Message Content 1")))
+                .andExpect(jsonPath("$.messages[2].receiver", is(USER2)));
     }
 
     @Test

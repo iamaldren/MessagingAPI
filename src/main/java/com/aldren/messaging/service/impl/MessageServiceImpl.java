@@ -7,6 +7,7 @@ import com.aldren.messaging.document.Users;
 import com.aldren.messaging.exception.ReadMessageFailException;
 import com.aldren.messaging.exception.UserDoesNotExistException;
 import com.aldren.messaging.model.Message;
+import com.aldren.messaging.model.MessageList;
 import com.aldren.messaging.repository.MessagesRepository;
 import com.aldren.messaging.repository.UsersRepository;
 import com.aldren.messaging.service.MessageService;
@@ -76,7 +77,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public List<Message> listMessages(String user, int page, String role) {
+    public MessageList listMessages(String user, int page, String role) {
         Users users = userRepo.findByUserId(user);
 
         Pageable pageable = PageRequest.of(page, HelperConstants.PAGE_ITEMS_COUNT, getSort());
@@ -94,7 +95,11 @@ public class MessageServiceImpl implements MessageService {
             throw new NullPointerException("Oops! Something went wrong. Please contact tech support.");
         }
 
-        return messages.getContent().stream().map(this::convertMessage).collect(Collectors.toList());
+        MessageList messageList = new MessageList();
+        messageList.setTotalPage(messages.getTotalPages());
+        messageList.setMessages(messages.getContent().stream().map(this::convertMessage).collect(Collectors.toList()));
+
+        return messageList;
     }
 
     @Override

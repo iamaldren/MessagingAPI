@@ -7,6 +7,7 @@ import com.aldren.messaging.document.Users;
 import com.aldren.messaging.exception.ReadMessageFailException;
 import com.aldren.messaging.exception.UserDoesNotExistException;
 import com.aldren.messaging.model.Message;
+import com.aldren.messaging.model.MessageList;
 import com.aldren.messaging.repository.MessagesRepository;
 import com.aldren.messaging.repository.UsersRepository;
 import com.aldren.messaging.service.MessageService;
@@ -274,22 +275,22 @@ public class MessageServiceTest {
 
         Mockito.when(msgRepo.findAllSentMessages(Mockito.anyString(), Mockito.any())).thenReturn(new PageImpl<>(messages));
 
-        List<Message> message = svc.listMessages(USER1, 1, HelperConstants.SENDER);
+        MessageList message = svc.listMessages(USER1, 1, HelperConstants.SENDER);
 
-        assertThat(message.get(0).getReceiver()).isEqualTo(USER4);
-        assertThat(message.get(0).getSender()).isEqualTo(USER1);
-        assertThat(message.get(0).getSubject()).isEqualTo(messages3.getSubject());
-        assertThat(message.get(0).getContent()).isEqualTo(messages3.getContent());
+        assertThat(message.getMessages().get(0).getReceiver()).isEqualTo(USER4);
+        assertThat(message.getMessages().get(0).getSender()).isEqualTo(USER1);
+        assertThat(message.getMessages().get(0).getSubject()).isEqualTo(messages3.getSubject());
+        assertThat(message.getMessages().get(0).getContent()).isEqualTo(messages3.getContent());
 
-        assertThat(message.get(1).getReceiver()).isEqualTo(USER3);
-        assertThat(message.get(1).getSender()).isEqualTo(USER1);
-        assertThat(message.get(1).getSubject()).isEqualTo(messages2.getSubject());
-        assertThat(message.get(1).getContent()).isEqualTo(messages2.getContent());
+        assertThat(message.getMessages().get(1).getReceiver()).isEqualTo(USER3);
+        assertThat(message.getMessages().get(1).getSender()).isEqualTo(USER1);
+        assertThat(message.getMessages().get(1).getSubject()).isEqualTo(messages2.getSubject());
+        assertThat(message.getMessages().get(1).getContent()).isEqualTo(messages2.getContent());
 
-        assertThat(message.get(2).getReceiver()).isEqualTo(USER2);
-        assertThat(message.get(2).getSender()).isEqualTo(USER1);
-        assertThat(message.get(2).getSubject()).isEqualTo(messages1.getSubject());
-        assertThat(message.get(2).getContent()).isEqualTo(messages1.getContent());
+        assertThat(message.getMessages().get(2).getReceiver()).isEqualTo(USER2);
+        assertThat(message.getMessages().get(2).getSender()).isEqualTo(USER1);
+        assertThat(message.getMessages().get(2).getSubject()).isEqualTo(messages1.getSubject());
+        assertThat(message.getMessages().get(2).getContent()).isEqualTo(messages1.getContent());
     }
 
     @Test
@@ -334,29 +335,29 @@ public class MessageServiceTest {
 
         Mockito.when(msgRepo.findAllReceivedMessages(Mockito.anyString(), Mockito.any())).thenReturn(new PageImpl<>(messages));
 
-        List<Message> message = svc.listMessages(USER5, 1, HelperConstants.RECEIVER);
+        MessageList message = svc.listMessages(USER5, 1, HelperConstants.RECEIVER);
 
-        assertThat(message.get(0).getReceiver()).isEqualTo(USER5);
-        assertThat(message.get(0).getSender()).isEqualTo(USER4);
-        assertThat(message.get(0).getSubject()).isEqualTo(messages3.getSubject());
-        assertThat(message.get(0).getContent()).isEqualTo(messages3.getContent());
+        assertThat(message.getMessages().get(0).getReceiver()).isEqualTo(USER5);
+        assertThat(message.getMessages().get(0).getSender()).isEqualTo(USER4);
+        assertThat(message.getMessages().get(0).getSubject()).isEqualTo(messages3.getSubject());
+        assertThat(message.getMessages().get(0).getContent()).isEqualTo(messages3.getContent());
 
-        assertThat(message.get(1).getReceiver()).isEqualTo(USER5);
-        assertThat(message.get(1).getSender()).isEqualTo(USER2);
-        assertThat(message.get(1).getSubject()).isEqualTo(messages2.getSubject());
-        assertThat(message.get(1).getContent()).isEqualTo(messages2.getContent());
+        assertThat(message.getMessages().get(1).getReceiver()).isEqualTo(USER5);
+        assertThat(message.getMessages().get(1).getSender()).isEqualTo(USER2);
+        assertThat(message.getMessages().get(1).getSubject()).isEqualTo(messages2.getSubject());
+        assertThat(message.getMessages().get(1).getContent()).isEqualTo(messages2.getContent());
 
-        assertThat(message.get(2).getReceiver()).isEqualTo(USER5);
-        assertThat(message.get(2).getSender()).isEqualTo(USER1);
-        assertThat(message.get(2).getSubject()).isEqualTo(messages1.getSubject());
-        assertThat(message.get(2).getContent()).isEqualTo(messages1.getContent());
+        assertThat(message.getMessages().get(2).getReceiver()).isEqualTo(USER5);
+        assertThat(message.getMessages().get(2).getSender()).isEqualTo(USER1);
+        assertThat(message.getMessages().get(2).getSubject()).isEqualTo(messages1.getSubject());
+        assertThat(message.getMessages().get(2).getContent()).isEqualTo(messages1.getContent());
     }
 
     @Test(expected = NullPointerException.class)
     public void testListMessagesNull() {
         Mockito.when(msgRepo.findAllReceivedMessages(Mockito.anyString(), Mockito.any())).thenReturn(null);
 
-        List<Message> message = svc.listMessages(USER5, 1, HelperConstants.RECEIVER);
+        MessageList message = svc.listMessages(USER5, 1, HelperConstants.RECEIVER);
     }
 
     @Test

@@ -15,19 +15,21 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 @Service
 public class TestService {
 
     @Autowired
-    private UsersRepository users;
+    private UsersRepository usersRepo;
 
     @Autowired
     private MessagesRepository messages;
 
+    private Random randomGenerator = new Random();
+
     public void insertTestData() throws ParseException {
-        Users sender = users.findByUserId("tonystark");
-        Users receiver = users.findByUserId("steverogers");
+        String[] users = {"tonystark","steverogers","nickfury","mariahill","thorodinson"};
 
         for (int i = 0; i < 30; i++) {
             int daysAgo = (30 - i);
@@ -39,6 +41,15 @@ public class TestService {
 
             int j = 0;
             while (j < (i + 1)) {
+                int senderNum = randomGenerator.nextInt(5);
+                Users sender = usersRepo.findByUserId(users[senderNum]);
+
+                int receiverNum = randomGenerator.nextInt(5);
+                while(receiverNum == senderNum) {
+                    receiverNum = randomGenerator.nextInt(5);
+                }
+                Users receiver = usersRepo.findByUserId(users[receiverNum]);
+
                 Messages message = new Messages();
                 message.setSender(sender.getId());
                 message.setReceiver(receiver.getId());
