@@ -4,8 +4,6 @@ services:
   my-mongodb:
     image: 'iamaldrew/messaging-mongo'
     container_name: 'my-mongodb'
-    volumes:
-      - ./mongo-volume:/data/db
     ports:
       - '27017:27017'
     expose:
@@ -13,7 +11,7 @@ services:
     networks:
       - messaging_api
   messaging-api-1.0.0:
-    image: 'iamaldrew/messaging-api:1.0.0'
+    image: 'iamaldrew/messaging-api'
     container_name: 'messaging-api'
     depends_on:
       - my-mongodb
