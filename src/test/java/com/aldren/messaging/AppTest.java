@@ -277,6 +277,30 @@ public class AppTest {
         }
     }
 
+    @Test
+    @Order(4)
+    public void testPredictedMessageCountForTheDay() throws Exception {
+        String message = "Predicted message count to receive for the day is 22";
+
+        mockMvc.perform(get("/api/v1/message/predict?type=Day"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", is(HttpStatus.OK.value())))
+                .andExpect(jsonPath("$.description", is(HttpStatus.OK.name())))
+                .andExpect(jsonPath("$.information", is(message)));
+    }
+
+    @Test
+    @Order(5)
+    public void testPredictedMessageCountForTheWeek() throws Exception {
+        String message = "Predicted message count to receive for the week is 117";
+
+        mockMvc.perform(get("/api/v1/message/predict?type=week"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", is(HttpStatus.OK.value())))
+                .andExpect(jsonPath("$.description", is(HttpStatus.OK.name())))
+                .andExpect(jsonPath("$.information", is(message)));
+    }
+
     private String convertObject(Message message) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writer().withDefaultPrettyPrinter().writeValueAsString(message);
