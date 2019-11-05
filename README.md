@@ -71,6 +71,14 @@ The unit test is under /src/test/java/com/aldren/messaging/unit/*
 
 The tests are using Mockito to mock the data needed, and focuses more on the logic behind every function/method.
 
+## Mongodb collections
+
+There are 2 collections in Mongodb for this application.
+- Users -> Collection to store all users of the application. 
+- Messages -> Collection to store all messages. Mapped to users collection by the Users collection generated id.
+
+Please see the scripts in <PROJECT_SOURCE_DIR>/src/main/scripts.
+
 ## Messaging API Application
 
 The application, is a RESTful application that exposes 5 endpoints.
@@ -102,6 +110,12 @@ Request Body:
 }
 ```
 
+X-User is the current user using the system.
+
+The endpoint will return an HTTP Status 404 in case the receiver is not existing in the database. "Sender" user will not be validated as it is assumed that since the user can use the system, the user is existing in the database.
+
+Once the message is sent to the users, it will have a status of UNREAD.
+
 ### Read Message
 ```sh
 POST /api/v1/message/read
@@ -120,3 +134,81 @@ Response Body:
 ```
 
 This endpoint will only display all UNREAD messages, if there are no UNREAD messages left, this endpoint will return an empty list.
+
+The messages will be updated to READ status once they have been called from this endpoint. In case there were an issue with updating, the endpoint will throw an HTTP Status 500.
+
+### List of all Sent Messages
+```sh
+GET /api/v1/message/sent?page=1
+X-User: tonystark
+
+Response Body:
+{
+    "totalPage": 10,
+    "messages": [
+        {
+            "sender": "tonystark",
+            "receiver": "mariahill",
+            "subject": "Test 4",
+            "content": "Test message 4 from 1 day/s ago",
+            "sentDate": "2019-10-11T23:49:26.652+0000"
+        },
+        {
+            "sender": "tonystark",
+            "receiver": "thorodinson",
+            "subject": "Test 3",
+            "content": "Test message 3 from 2 day/s ago",
+            "sentDate": "2019-10-09T23:49:26.644+0000"
+        },
+        {
+            "sender": "tonystark",
+            "receiver": "steverogers",
+            "subject": "Test 1",
+            "content": "Test message 1 from 3 day/s ago",
+            "sentDate": "2019-10-07T23:49:26.615+0000"
+        }
+    ]
+}
+```
+
+The list of all sent messages can be retrieve through paging. The response will return a JSON object that indicates the number of total pages, and the list of messages for that page. The maximum number of messages per page is 10.
+
+The 'page' parameter must always be numeric, and minimum value of 1. Value less than 1 will thrown an HTTP Status 400.
+
+### List of all Received messages
+```sh
+GET /api/v1/message/receive?page=1
+X-User: steverogers
+
+Response Body:
+{
+    "totalPage": 10,
+    "messages": [
+        {
+            "sender": "nickfury",
+            "receiver": "steverogers",
+            "subject": "Test 2",
+            "content": "Test message 2 from 1 day/s ago",
+            "sentDate": "2019-11-04T23:49:26.910+0000"
+        },
+        {
+            "sender": "nickfury",
+            "receiver": "steverogers",
+            "subject": "Test 7",
+            "content": "Test message 7 from 1 day/s ago",
+            "sentDate": "2019-11-04T23:49:26.910+0000"
+        },
+        {
+            "sender": "thorodinson",
+            "receiver": "steverogers",
+            "subject": "Test 8",
+            "content": "Test message 8 from 1 day/s ago",
+            "sentDate": "2019-11-04T23:49:26.910+0000"
+        }
+    ]
+}
+```
+
+The list of all received messages can be retrieve through paging. 
+
+Same behavior as the sent messages endpoint.

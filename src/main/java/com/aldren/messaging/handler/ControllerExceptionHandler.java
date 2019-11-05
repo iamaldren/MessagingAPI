@@ -21,7 +21,7 @@ import java.util.Date;
 @ControllerAdvice
 public class ControllerExceptionHandler {
 
-    @ExceptionHandler({ReadMessageFailException.class, BadRequestException.class})
+    @ExceptionHandler({BadRequestException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public @ResponseBody
     Response handleBadRequestException(Exception e, WebRequest u) {
@@ -45,7 +45,7 @@ public class ControllerExceptionHandler {
                 .build();
     }
 
-    @ExceptionHandler({ParseException.class, NullPointerException.class})
+    @ExceptionHandler({ParseException.class, NullPointerException.class, ReadMessageFailException.class, })
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public @ResponseBody
     Response handleInternalServerException(Exception e, WebRequest u) {

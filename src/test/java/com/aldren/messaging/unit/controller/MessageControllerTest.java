@@ -103,7 +103,7 @@ public class MessageControllerTest {
 
         mvc.perform(get("/api/v1/message/read")
                 .header(X_USER_HEADER, USER2))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
