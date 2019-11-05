@@ -2,12 +2,8 @@ version: '3.6'
 
 services:
   my-mongodb:
-    image: 'mongo'
+    image: 'iamaldrew/messaging-mongo'
     container_name: 'my-mongodb'
-    environment:
-      - MONGO_INITDB_DATABASE=messaging
-      - MONGO_INITDB_ROOT_USERNAME=iamaldren
-      - MONGO_INITDB_ROOT_PASSWORD=secret
     volumes:
       - ./mongo-volume:/data/db
     ports:
@@ -17,8 +13,8 @@ services:
     networks:
       - messaging_api
   messaging-api-1.0.0:
-    image: 'messaging-api-1.0.0'
-    container_name: 'messaging-api-1.0.0'
+    image: 'iamaldrew/messaging-api:1.0.0'
+    container_name: 'messaging-api'
     depends_on:
       - my-mongodb
     ports:
