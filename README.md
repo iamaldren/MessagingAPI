@@ -284,15 +284,67 @@ The unit tests are doing data mock-ups for all database related transactions. It
 
 There are 2 collections in Mongodb for this application.
 - Users -> Collection to store all users of the application. 
+    ```
+    db.createCollection("users", {
+        validator: {
+            $jsonSchema: {
+                bsonType: "object",
+                required: [ "userId", "firstName", "lastName", "status", "role" ],
+                properties: {
+                    userId: {
+                        bsonType: "string"
+                    },
+                    firstName: {
+                        bsonType: "string"
+                    },
+                    lastName: {
+                        bsonType: "string"
+                    },
+                    status: {
+                        enum: [ "ACTIVE", "INACTIVE" ]
+                    },
+                    role: {
+                        enum: [ "User", "Admin" ]
+                    },
+                    updatedDate: {
+                        bsonType: "date"
+                    }
+                }
+            }
+        }
+    })
+    ```
 - Messages -> Collection to store all messages. This has a relationship to Users collection through the `generated ID` by Mongodb for the users data in the collection.
-
-Please see the scripts in the structure below.
-```
-app
-|-- src
-|---- main
-|------ scripts      #Mongodb scripts
-```
+    ```
+     db.createCollection("messages", {
+         validator: {
+             $jsonSchema: {
+                 bsonType: "object",
+                 required: [ "sender", "receiver", "subject", "content", "sentDate" ],
+                 properties: {
+                     sender: {
+                         bsonType: "string"
+                     },
+                     receiver: {
+                         bsonType: "string"
+                     },
+                     subject: {
+                         bsonType: "string"
+                     },
+                     content: {
+                         bsonType: "string"
+                     },
+                     sentDate: {
+                         bsonType: "date"
+                     },
+                     status: {
+                         enum: [ "READ", "UNREAD" ]
+                     }
+                 }
+             }
+         }
+     })   
+    ```
 
 ## Tech Stack
 - Java 8
