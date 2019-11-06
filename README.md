@@ -173,7 +173,7 @@ Response Body:
 
 The list of all sent messages can be retrieve through paging. The response will return a JSON object that indicates the number of total pages, and the list of messages for that page. The maximum number of messages per page is 10.
 
-The 'page' parameter must always be numeric, and minimum value of 1. Value less than 1 will thrown an HTTP Status 400.
+The 'page' parameter must always be numeric, and minimum value of 1. Value less than 1 will throw an HTTP Status 400.
 
 ### List of all Received messages
 ```sh
