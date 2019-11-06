@@ -10,12 +10,28 @@ A simple RESTful application where users can send messages to each other.
 2. Run the application. There are 2 ways to run this, first is via Docker, and the second one is manually building and executing the jar file.
 
 ### Docker
-#### Prequisites
+#### Prequisite/s
 - Docker
 
 The application is containerized, wherein all related stacks are already setup in the docker images. One just need to run the docker-compose file, and the application can be used directly.
 
 1. Go to `PROJECT_SOURCE_DIR`. You should see the docker-compose.yml file in this directory.
+```
+app
+|-- src                     #Source codes
+|-- gradle                  #Gradle Wrapper
+|-- .gitignore
+|-- travis.yml              #Travis setup
+|-- build.gradle            #Gradle configurations
+|-- codecov.yml
+|-- docker-compose.yml      #Docker setup for running the Mongodb and Message-API images
+|-- Dockerfile
+|-- gradlew
+|-- gradlew.bat
+|-- lombok.config
+|-- README.md
+|-- settings.gradle
+```
 2. Run the command below via command prompt.
     ```sh
     docker-compose up -d
@@ -24,19 +40,21 @@ The application is containerized, wherein all related stacks are already setup i
 4. The application can be accessed in port 8080.
 
 ### Manual 
-#### Prerequisites
+#### Prerequisite/s
 - Java 8
 - Mongodb
 - Gradle
 
 1. Run the scripts in the folder structure below in your Mongo DB instance.
 ```
+app
 |--src
 |----main
 |------scripts      #Mongodb scripts
 ```
 2. Update the application-LOCAL.yml file, located in the folders structure below, with correct Mongodb credentials and URL.
 ```
+app
 |-- src
 |----main
 |------resources
@@ -59,7 +77,7 @@ The application is a RESTful application that exposes 5 endpoints.
 - /api/v1/message/receive
 - /api/v1/message/predict
 
-By default, the application has 5 existing users whose user IDs are:
+By default, the application has 5 default users whose user IDs are:
 - tonystark
 - steverogers
 - nickfury
@@ -83,9 +101,9 @@ Request Body:
 
 X-User is the current user using the system.
 
-The endpoint will return an `HTTP Status 404` in case the receiver is not existing in the database. `Sender` user will not be validated as it is assumed that the user is existing in the database, since he can use the system.
+The endpoint will return an `HTTP Status 404` in case the receiver is not existing in the database. `Sender` user will not be validated, it is assumed that the user is existing in the database since he can use the system.
 
-Once the message is sent to the user, it will have a message status of `UNREAD`.
+Once the message was sent to the user, it will have a message status of `UNREAD`.
 
 ### Read Message
 ```sh
@@ -104,7 +122,7 @@ Response Body:
 ]
 ```
 
-This endpoint will only display all `UNREAD` messages for the user, if there are no UNREAD messages it will return an empty list.
+This endpoint will only display all `UNREAD` messages for the user, if there are none it will return an empty list.
 
 The messages will be updated to `READ` status after they have been accessed. In case there was an issue with updating, the endpoint will throw an `HTTP Status 500`.
 
@@ -144,7 +162,7 @@ Response Body:
 
 The list of all sent messages can be retrieved through this endpoint, and it implements pagination. The response will return a JSON object that indicates the number of total pages, and the list of messages in that page. The maximum number of messages per page is `10`.
 
-The `page` parameter must always be numeric, and has a minimum value of 1. If the value pass to the parameter is less than 1, it will throw an `HTTP Status 400`.
+The `page` parameter must always be numeric, and has a minimum value of 1. If the value passed to the parameter was less than 1, it will throw an `HTTP Status 400`.
 
 ### List of all Received messages
 ```sh
@@ -186,9 +204,57 @@ It has the same behavior as the `/api/v1/message/sent` endpoint.
 
 ### Prediction of number of messages received
 
+The endpoint will have a `type` parameter, which will only accept 2 string values. The values supported are `Day` and `Week`, both are `case insensitive`.
+
+In case any other values, aside from the mentioned ones, were passed to the parameter, the endpoint will throw an `Http Status 400`.
+
+#### Extra Endpoint
+
+There is an extra endpoint that can be invoked to generate dummy data whose date will be within the last 30 days from current date.
+
+This is for the purpose of having a data that can be used for predicting the number of messages per day/week.
+
+The generated messages will have a random sender/receiver based on the 5 default users.
+
+The endpoint can be access thru `/api/v1/test`
+
 #### For the Day
+```sh
+GET /api/v1/message/predict?type=Day
+
+Response Body:
+{
+    "timestamp": "2019-11-06T11:27:13.547+0000",
+    "status": 200,
+    "description": "OK",
+    "information": "Predicted message count to receive for the day is 22"
+}
+```
+The endpoint will get the total number of messages sent within the last 14 days from current date. The total count will then be divided by 14 to get the average, which will be the predicted count of the number of messages going to be received for the day.
 
 #### For the Week
+```sh
+GET /api/v1/message/predict?type=Week
+
+Response Body:
+{
+    "timestamp": "2019-11-06T11:35:26.901+0000",
+    "status": 200,
+    "description": "OK",
+    "information": "Predicted message count to receive for the week is 116"
+}
+```
+The endpoint will get the total number of messages sent within the last 30 days from current date. The total count will then be divided by 4 (number of weeks within a month) to get the average, which will be the predicted count of the number of messages going to be received for the week.
+
+## Extra Endpoint
+
+There is an extra endpoint that can be invoked to generate dummy data whose date will be within the last 30 days from current date.
+
+This is for the purpose of having a data that can be used for predicting the number of messages per day/week, and for listing all sent/received messages as well.
+
+The generated messages will have a random sender/receiver based on the 5 default users.
+
+The endpoint can be access thru `/api/v1/test`
 
 ## Unit and Integration tests
 
@@ -199,6 +265,7 @@ gradle test
 
 The tests are located in the folder structure shown below.
 ```
+app
 |-- src
 |----test
 |------java
@@ -227,6 +294,7 @@ There are 2 collections in Mongodb for this application.
 
 Please see the scripts in the structure below.
 ```
+app
 |--src
 |----main
 |------scripts      #Mongodb scripts
