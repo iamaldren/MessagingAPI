@@ -6,32 +6,41 @@ A simple RESTful application where users can send messages to each other.
 
 ## Getting Started
 
-The application can be run either via docker or manually via command prompt.
+1. Clone the repository from Github
+2. Run the application. There are 2 ways to run this, first is via Docker, and the second one is manually building and executing the jar file.
 
-### Using Docker
+### Docker
 #### Prequisites
 - Docker
 
-The application is containerized, wherein all related stacks are already setup.
+The application is containerized, wherein all related stacks are already setup in the docker images. One just need to run the docker-compose file, and the application can be used directly.
 
-Just run the docker-compose file, and the application can be used directly.
-
-1. Go to <PROJECT_SOURCE_DIR>. The docker-compose.yml file should be in this directory.
-2. Run the command below:
+1. Go to `PROJECT_SOURCE_DIR`. You should see the docker-compose.yml file in this directory.
+2. Run the command below via command prompt.
     ```sh
     docker-compose up -d
     ```
-3. An instance of Mongodb, and the messaging API should be started.
-4. The application port should be in 8080.
+3. An instance of Mongodb, and the Messaging API should be started.
+4. The application can be accessed in port 8080.
 
-### Manual Running
+### Manual 
 #### Prerequisites
 - Java 8
 - Mongodb
 - Gradle
 
-1. Run the scripts in <PROJECT_SOURCE_DIR>/src/main/scripts in your Mongo DB instance.
-2. Update the application-LOCAL.yml file in <PROJECT_SOURCE_DIR>/src/main/resources folder with correct Mongodb credentials.
+1. Run the scripts in the folder structure below in your Mongo DB instance.
+```
+|--src
+|----main
+|------scripts      #Mongodb scripts
+```
+2. Update the application-LOCAL.yml file, located in the folders structure below, with correct Mongodb credentials and URL.
+```
+|-- src
+|----main
+|------resources
+```
 3. Build the project by executing the command below.
     ```sh
     gradle clean build
@@ -74,14 +83,14 @@ Request Body:
 
 X-User is the current user using the system.
 
-The endpoint will return an HTTP Status 404 in case the receiver is not existing in the database. "Sender" user will not be validated as it is assumed that since the user can use the system, the user is existing in the database.
+The endpoint will return an `HTTP Status 404` in case the receiver is not existing in the database. `Sender` user will not be validated as it is assumed that the user is existing in the database, since he can use the system.
 
-Once the message is sent to the users, it will have a status of UNREAD.
+Once the message is sent to the user, it will have a message status of `UNREAD`.
 
 ### Read Message
 ```sh
 GET /api/v1/message/read
-X-User: steverogers
+X-User: mariahill
 
 Response Body:
 [
@@ -95,9 +104,9 @@ Response Body:
 ]
 ```
 
-This endpoint will only display all UNREAD messages, if there are no UNREAD messages left, this endpoint will return an empty list.
+This endpoint will only display all `UNREAD` messages for the user, if there are no UNREAD messages it will return an empty list.
 
-The messages will be updated to READ status once they have been called from this endpoint. In case there were an issue with updating, the endpoint will throw an HTTP Status 500.
+The messages will be updated to `READ` status after they have been accessed. In case there was an issue with updating, the endpoint will throw an `HTTP Status 500`.
 
 ### List of all Sent Messages
 ```sh
@@ -133,9 +142,9 @@ Response Body:
 }
 ```
 
-The list of all sent messages can be retrieve through paging. The response will return a JSON object that indicates the number of total pages, and the list of messages for that page. The maximum number of messages per page is 10.
+The list of all sent messages can be retrieved through this endpoint, and it implements pagination. The response will return a JSON object that indicates the number of total pages, and the list of messages in that page. The maximum number of messages per page is `10`.
 
-The 'page' parameter must always be numeric, and minimum value of 1. Value less than 1 will thrown an HTTP Status 400.
+The `page` parameter must always be numeric, and has a minimum value of 1. If the value pass to the parameter is less than 1, it will throw an `HTTP Status 400`.
 
 ### List of all Received messages
 ```sh
@@ -171,9 +180,15 @@ Response Body:
 }
 ```
 
-The list of all received messages can be retrieve through paging. 
+The list of all received messages can be retrieve in this endpoint. 
 
-Same behavior as the sent messages endpoint.
+It has the same behavior as the `/api/v1/message/sent` endpoint.
+
+### Prediction of number of messages received
+
+#### For the Day
+
+#### For the Week
 
 ## Unit and Integration tests
 
@@ -198,7 +213,7 @@ The tests are located in the folder structure shown below.
 
 The integration tests are using an embedded Mongodb for database transactions. Mocking of data is being avoided so the end-to-end code process will be executed.
 
-`DISCLAIMER`: Though the purpose of an integration test is to check the flow of end-to-end process, including database transactions, it is still advisable to do testing with an actual database instance. Embedded database may behave differently compared to the actual one.
+`WARNING`: Though the purpose of an integration test is to check the flow of end-to-end process, including database transactions, it is still advisable to do testing with an actual database instance. Embedded database may behave differently compared to the actual one.
 
 ### Unit Tests
 
