@@ -2,48 +2,45 @@
 
 [![Travis CI](https://travis-ci.com/iamaldren/MessagingAPI.svg?token=JFGXGDBsRwtsPKw6DTAj&branch=master)](https://travis-ci.com/iamaldren/MessagingAPI.svg?token=JFGXGDBsRwtsPKw6DTAj&branch=master) [![codecov](https://codecov.io/gh/iamaldren/MessagingAPI/branch/master/graph/badge.svg?token=6oJH8e2Y17)](https://codecov.io/gh/iamaldren/MessagingAPI)
 
-## What
-
 A simple RESTful application where users can send messages to each other.
-
-## Tech Stack
-- Java 8
-- Springboot
-- Spring Data
-- Mongodb
-- Gradle
-- Docker
-- JUnit 5
-- Mockito
 
 ## Getting Started
 
-The application can be run either via docker or manually via command prompt.
+1. Clone the repository from Github
+2. Run the application. There are 2 ways to run this, first is via Docker, and the second one is manually building and executing the jar file.
 
-### Using Docker
+### Docker
 #### Prequisites
 - Docker
 
-The application is containerized, wherein all related stack are already setup.
+The application is containerized, wherein all related stacks are already setup in the docker images. One just need to run the docker-compose file, and the application can be used directly.
 
-Just run the docker-compose file, and the application can be used directly.
-
-1. Go to <PROJECT_SOURCE_DIR>. The docker-compose.yml file should be in this directory.
-2. Run the command below:
+1. Go to `PROJECT_SOURCE_DIR`. You should see the docker-compose.yml file in this directory.
+2. Run the command below via command prompt.
     ```sh
     docker-compose up -d
     ```
-3. An instance of mongodb, and the messaging api should be started.
-4. The application port should be in 8080.
+3. An instance of Mongodb, and the Messaging API should be started.
+4. The application can be accessed in port 8080.
 
-### Manual Running
+### Manual 
 #### Prerequisites
 - Java 8
-- Maria DB
+- Mongodb
 - Gradle
 
-1. Run the scripts in <PROJECT_SOURCE_DIR>/src/main/scripts in your Maria DB instance.
-2. Update the application-LOCAL.yml file in <PROJECT_SOURCE_DIR>/src/main/resources folder with correct Maria DB credentials.
+1. Run the scripts in the folder structure below in your Mongo DB instance.
+```
+|--src
+|----main
+|------scripts      #Mongodb scripts
+```
+2. Update the application-LOCAL.yml file, located in the folders structure below, with correct Mongodb credentials and URL.
+```
+|-- src
+|----main
+|------resources
+```
 3. Build the project by executing the command below.
     ```sh
     gradle clean build
@@ -52,43 +49,17 @@ Just run the docker-compose file, and the application can be used directly.
     ```sh
     java -jar /build/libs/Messaging-API-1.0.0.jar --spring.profiles.active=LOCAL
     ```
-## Unit and Integration tests
-
-The unit and integration tests will run once the project is building, or when the command below is executed.
-```sh
-gradle test
-```
-
-### Integration Test
-
-The integration test is under /src/test/java/com/aldren/messaging/AppTest.java.
-
-The tests are using an embedded mongodb for database related actions. Mocking the data is being avoided for the integration testing, so the test will cover end-to-end process.
-
-### Unit Test
-
-The unit test is under /src/test/java/com/aldren/messaging/unit/*
-
-The tests are using Mockito to mock the data needed, and focuses more on the logic behind every function/method.
-
-## Mongodb collections
-
-There are 2 collections in Mongodb for this application.
-- Users -> Collection to store all users of the application. 
-- Messages -> Collection to store all messages. Mapped to users collection by the Users collection generated id.
-
-Please see the scripts in <PROJECT_SOURCE_DIR>/src/main/scripts.
 
 ## Messaging API Application
 
-The application, is a RESTful application that exposes 5 endpoints.
+The application is a RESTful application that exposes 5 endpoints.
 - /api/v1/message/send
 - /api/v1/message/read
 - /api/v1/message/sent
 - /api/v1/message/receive
 - /api/v1/message/predict
 
-By default, the application has 5 existing users whose user ids are:
+By default, the application has 5 existing users whose user IDs are:
 - tonystark
 - steverogers
 - nickfury
@@ -112,14 +83,14 @@ Request Body:
 
 X-User is the current user using the system.
 
-The endpoint will return an HTTP Status 404 in case the receiver is not existing in the database. "Sender" user will not be validated as it is assumed that since the user can use the system, the user is existing in the database.
+The endpoint will return an `HTTP Status 404` in case the receiver is not existing in the database. `Sender` user will not be validated as it is assumed that the user is existing in the database, since he can use the system.
 
-Once the message is sent to the users, it will have a status of UNREAD.
+Once the message is sent to the user, it will have a message status of `UNREAD`.
 
 ### Read Message
 ```sh
-POST /api/v1/message/read
-X-User: steverogers
+GET /api/v1/message/read
+X-User: mariahill
 
 Response Body:
 [
@@ -133,9 +104,9 @@ Response Body:
 ]
 ```
 
-This endpoint will only display all UNREAD messages, if there are no UNREAD messages left, this endpoint will return an empty list.
+This endpoint will only display all `UNREAD` messages for the user, if there are no UNREAD messages it will return an empty list.
 
-The messages will be updated to READ status once they have been called from this endpoint. In case there were an issue with updating, the endpoint will throw an HTTP Status 500.
+The messages will be updated to `READ` status after they have been accessed. In case there was an issue with updating, the endpoint will throw an `HTTP Status 500`.
 
 ### List of all Sent Messages
 ```sh
@@ -171,9 +142,9 @@ Response Body:
 }
 ```
 
-The list of all sent messages can be retrieve through paging. The response will return a JSON object that indicates the number of total pages, and the list of messages for that page. The maximum number of messages per page is 10.
+The list of all sent messages can be retrieved through this endpoint, and it implements pagination. The response will return a JSON object that indicates the number of total pages, and the list of messages in that page. The maximum number of messages per page is `10`.
 
-The 'page' parameter must always be numeric, and minimum value of 1. Value less than 1 will throw an HTTP Status 400.
+The `page` parameter must always be numeric, and has a minimum value of 1. If the value pass to the parameter is less than 1, it will throw an `HTTP Status 400`.
 
 ### List of all Received messages
 ```sh
@@ -209,6 +180,64 @@ Response Body:
 }
 ```
 
-The list of all received messages can be retrieve through paging. 
+The list of all received messages can be retrieve in this endpoint. 
 
-Same behavior as the sent messages endpoint.
+It has the same behavior as the `/api/v1/message/sent` endpoint.
+
+### Prediction of number of messages received
+
+#### For the Day
+
+#### For the Week
+
+## Unit and Integration tests
+
+The unit and integration tests will run once the project is building, or when the command below is executed.
+```sh
+gradle test
+```
+
+The tests are located in the folder structure shown below.
+```
+|-- src
+|----test
+|------java
+|--------com
+|----------aldren
+|------------messaging
+|--------------AppTest.java     #Integration tests
+|--------------unit             #Contain Unit tests classes
+```
+
+### Integration Tests
+
+The integration tests are using an embedded Mongodb for database transactions. Mocking of data is being avoided so the end-to-end code process will be executed.
+
+`WARNING`: Though the purpose of an integration test is to check the flow of end-to-end process, including database transactions, it is still advisable to do testing with an actual database instance. Embedded database may behave differently compared to the actual one.
+
+### Unit Tests
+
+The unit tests are doing data mock-ups for all database related transactions. Its purpose is mainly to test the logic flow per each function/method of the classes.
+
+## Mongodb collections
+
+There are 2 collections in Mongodb for this application.
+- Users -> Collection to store all users of the application. 
+- Messages -> Collection to store all messages. This has a relationship to Users collection through the `generated ID` by Mongodb for the users data in the collection.
+
+Please see the scripts in the structure below.
+```
+|--src
+|----main
+|------scripts      #Mongodb scripts
+```
+
+## Tech Stack
+- Java 8
+- Springboot
+- Spring Data
+- Mongodb
+- Gradle
+- Docker
+- JUnit 5
+- Mockito
