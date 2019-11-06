@@ -2,19 +2,7 @@
 
 [![Travis CI](https://travis-ci.com/iamaldren/MessagingAPI.svg?token=JFGXGDBsRwtsPKw6DTAj&branch=master)](https://travis-ci.com/iamaldren/MessagingAPI.svg?token=JFGXGDBsRwtsPKw6DTAj&branch=master) [![codecov](https://codecov.io/gh/iamaldren/MessagingAPI/branch/master/graph/badge.svg?token=6oJH8e2Y17)](https://codecov.io/gh/iamaldren/MessagingAPI)
 
-## What
-
 A simple RESTful application where users can send messages to each other.
-
-## Tech Stack
-- Java 8
-- Springboot
-- Spring Data
-- Mongodb
-- Gradle
-- Docker
-- JUnit 5
-- Mockito
 
 ## Getting Started
 
@@ -52,32 +40,6 @@ Just run the docker-compose file, and the application can be used directly.
     ```sh
     java -jar /build/libs/Messaging-API-1.0.0.jar --spring.profiles.active=LOCAL
     ```
-## Unit and Integration tests
-
-The unit and integration tests will run once the project is building, or when the command below is executed.
-```sh
-gradle test
-```
-
-### Integration Test
-
-The integration tests are under the class in /src/test/java/com/aldren/messaging/AppTest.java.
-
-The tests are using an embedded mongodb for database related actions. Mocking the data is being avoided for integration testing, so the test will cover the end-to-end process in the code (including the write/read functions for the database).
-
-### Unit Test
-
-The unit test classes are under /src/test/java/com/aldren/messaging/unit/*
-
-The tests are using Mockito to mock the data needed, and focuses more on the logic behind every class function/method.
-
-## Mongodb collections
-
-There are 2 collections in Mongodb for this application.
-- Users -> Collection to store all users of the application. 
-- Messages -> Collection to store all messages. Mapped to users collection by the Users collection generated id.
-
-Please see the scripts in <PROJECT_SOURCE_DIR>/src/main/scripts.
 
 ## Messaging API Application
 
@@ -212,3 +174,55 @@ Response Body:
 The list of all received messages can be retrieve through paging. 
 
 Same behavior as the sent messages endpoint.
+
+## Unit and Integration tests
+
+The unit and integration tests will run once the project is building, or when the command below is executed.
+```sh
+gradle test
+```
+
+The tests are located in the folder structure shown below.
+```
+|-- src
+|----test
+|------java
+|--------com
+|----------aldren
+|------------messaging
+|--------------AppTest.java     #Integration tests
+|--------------unit             #Contain Unit tests classes
+```
+
+### Integration Tests
+
+The integration tests are using an embedded Mongodb for database transactions. Mocking of data is being avoided so the end-to-end code process will be executed.
+
+`DISCLAIMER`: Though the purpose of an integration test is to check the flow of end-to-end process, including database transactions, it is still advisable to do testing with an actual database instance. Embedded database may behave differently compared to the actual one.
+
+### Unit Tests
+
+The unit tests are doing data mock-ups for all database related transactions. Its purpose is mainly to test the logic flow per each function/method of the classes.
+
+## Mongodb collections
+
+There are 2 collections in Mongodb for this application.
+- Users -> Collection to store all users of the application. 
+- Messages -> Collection to store all messages. This has a relationship to Users collection through the `generated ID` by Mongodb for the users data in the collection.
+
+Please see the scripts in the structure below.
+```
+|--src
+|----main
+|------scripts      #Mongodb scripts
+```
+
+## Tech Stack
+- Java 8
+- Springboot
+- Spring Data
+- Mongodb
+- Gradle
+- Docker
+- JUnit 5
+- Mockito
