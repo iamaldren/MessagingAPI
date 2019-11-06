@@ -13,7 +13,7 @@ A simple RESTful application where users can send messages to each other.
 #### Prequisite/s
 - Docker
 
-The application is containerized, wherein all related stacks are already setup in the docker images. One just need to run the docker-compose file, and the application can be used directly.
+The application is containerized, wherein all related stacks are already set up in the docker images. One just needs to run the docker-compose file, and the application can be used directly.
 
 1. Go to `PROJECT_SOURCE_DIR`. You should see the docker-compose.yml file in this directory.
     ```
@@ -49,7 +49,7 @@ The application is containerized, wherein all related stacks are already setup i
 - Mongodb
 - Gradle
 
-1. Run the scripts in the folder structure below in your Mongo DB instance.
+1. Run the scripts in the folder structure below in your Mongodb instance.
 ```
 app
 |--src
@@ -67,7 +67,7 @@ app
     ```sh
     gradle clean build
     ```
-4. Once the build finished successfully, execute the command below to run the application.
+4. After finishing the build, execute the command below to run the application.
     ```sh
     java -jar /build/libs/Messaging-API-1.0.0.jar --spring.profiles.active=LOCAL
     ```
@@ -88,7 +88,7 @@ By default, the application has 5 default users whose user IDs are:
 - mariahill
 - thorodinson
 
-These users can be used for the purpose of testing the application.
+These IDs can be used for the purpose of testing the application.
 
 ### Send Message
 ```sh
@@ -103,11 +103,12 @@ Request Body:
 }
 ```
 
-X-User is the current user using the system.
+X-User is the current system user.
+`WARNING`: In a real world scenario, the `sender` shouldn't be passed in the X-User header. Proper authentication should be implemented.
 
-The endpoint will return an `HTTP Status 404` in case the receiver is not existing in the database. `Sender` user will not be validated, it is assumed that the user is existing in the database since he can use the system.
+The endpoint will return an `HTTP Status 404` in case the receiver does not exists in the database. `Sender` user will not be validated, it is assumed that the user is existing in the database since he can use the system.
 
-Once the message was sent to the user, it will have a message status of `UNREAD`.
+Once the message has been sent to the user, it will have a message status of `UNREAD`.
 
 ### Read Message
 ```sh
@@ -166,7 +167,7 @@ Response Body:
 
 The list of all sent messages can be retrieved through this endpoint, and it implements pagination. The response will return a JSON object that indicates the number of total pages, and the list of messages in that page. The maximum number of messages per page is `10`.
 
-The `page` parameter must always be numeric, and has a minimum value of 1. If the value passed to the parameter was less than 1, it will throw an `HTTP Status 400`.
+The `page` parameter must always be numeric, and has a minimum value of 1. If the value passed to the parameter is less than 1, it will throw an `HTTP Status 400`.
 
 ### List of all Received messages
 ```sh
@@ -202,7 +203,7 @@ Response Body:
 }
 ```
 
-The list of all received messages can be retrieve in this endpoint. 
+The list of all received messages can be retrieved in this endpoint. 
 
 It has the same behavior as the `/api/v1/message/sent` endpoint.
 
@@ -274,7 +275,7 @@ app
 
 The integration tests are using an embedded Mongodb for database transactions. Mocking of data is being avoided so the end-to-end code process will be executed.
 
-`WARNING`: Though the purpose of an integration test is to check the flow of end-to-end process, including database transactions, it is still advisable to do testing with an actual database instance. Embedded database may behave differently compared to the actual one.
+`WARNING`: Though the purpose of an integration test is to check the end-to-end process, including database transactions, it is still advisable to do testing with an actual database instance. An embedded database may behave differently compared to the actual one.
 
 ### Unit Tests
 
