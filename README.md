@@ -24,7 +24,7 @@ The application can be run either via docker or manually via command prompt.
 #### Prequisites
 - Docker
 
-The application is containerized, wherein all related stack are already setup.
+The application is containerized, wherein all related stacks are already setup.
 
 Just run the docker-compose file, and the application can be used directly.
 
@@ -33,17 +33,17 @@ Just run the docker-compose file, and the application can be used directly.
     ```sh
     docker-compose up -d
     ```
-3. An instance of mongodb, and the messaging api should be started.
+3. An instance of Mongodb, and the messaging API should be started.
 4. The application port should be in 8080.
 
 ### Manual Running
 #### Prerequisites
 - Java 8
-- Maria DB
+- Mongodb
 - Gradle
 
-1. Run the scripts in <PROJECT_SOURCE_DIR>/src/main/scripts in your Maria DB instance.
-2. Update the application-LOCAL.yml file in <PROJECT_SOURCE_DIR>/src/main/resources folder with correct Maria DB credentials.
+1. Run the scripts in <PROJECT_SOURCE_DIR>/src/main/scripts in your Mongo DB instance.
+2. Update the application-LOCAL.yml file in <PROJECT_SOURCE_DIR>/src/main/resources folder with correct Mongodb credentials.
 3. Build the project by executing the command below.
     ```sh
     gradle clean build
@@ -61,15 +61,15 @@ gradle test
 
 ### Integration Test
 
-The integration test is under /src/test/java/com/aldren/messaging/AppTest.java.
+The integration tests are under the class in /src/test/java/com/aldren/messaging/AppTest.java.
 
-The tests are using an embedded mongodb for database related actions. Mocking the data is being avoided for the integration testing, so the test will cover end-to-end process.
+The tests are using an embedded mongodb for database related actions. Mocking the data is being avoided for integration testing, so the test will cover the end-to-end process in the code (including the write/read functions for the database).
 
 ### Unit Test
 
-The unit test is under /src/test/java/com/aldren/messaging/unit/*
+The unit test classes are under /src/test/java/com/aldren/messaging/unit/*
 
-The tests are using Mockito to mock the data needed, and focuses more on the logic behind every function/method.
+The tests are using Mockito to mock the data needed, and focuses more on the logic behind every class function/method.
 
 ## Mongodb collections
 
@@ -81,14 +81,14 @@ Please see the scripts in <PROJECT_SOURCE_DIR>/src/main/scripts.
 
 ## Messaging API Application
 
-The application, is a RESTful application that exposes 5 endpoints.
+The application is a RESTful application that exposes 5 endpoints.
 - /api/v1/message/send
 - /api/v1/message/read
 - /api/v1/message/sent
 - /api/v1/message/receive
 - /api/v1/message/predict
 
-By default, the application has 5 existing users whose user ids are:
+By default, the application has 5 existing users whose user IDs are:
 - tonystark
 - steverogers
 - nickfury
@@ -118,7 +118,7 @@ Once the message is sent to the users, it will have a status of UNREAD.
 
 ### Read Message
 ```sh
-POST /api/v1/message/read
+GET /api/v1/message/read
 X-User: steverogers
 
 Response Body:
