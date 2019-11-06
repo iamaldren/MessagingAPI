@@ -16,28 +16,32 @@ A simple RESTful application where users can send messages to each other.
 The application is containerized, wherein all related stacks are already setup in the docker images. One just need to run the docker-compose file, and the application can be used directly.
 
 1. Go to `PROJECT_SOURCE_DIR`. You should see the docker-compose.yml file in this directory.
-```
-app
-|-- src                     #Source codes
-|-- gradle                  #Gradle Wrapper
-|-- .gitignore
-|-- travis.yml              #Travis setup
-|-- build.gradle            #Gradle configurations
-|-- codecov.yml
-|-- docker-compose.yml      #Docker setup for running the Mongodb and Message-API images
-|-- Dockerfile
-|-- gradlew
-|-- gradlew.bat
-|-- lombok.config
-|-- README.md
-|-- settings.gradle
-```
+    ```
+    app
+    |-- src                     #Source codes
+    |-- gradle                  #Gradle Wrapper
+    |-- .gitignore
+    |-- travis.yml              #Travis setup
+    |-- build.gradle            #Gradle configurations
+    |-- codecov.yml
+    |-- docker-compose.yml      #Docker setup for running the Mongodb and Message-API images
+    |-- Dockerfile
+    |-- gradlew
+    |-- gradlew.bat
+    |-- lombok.config
+    |-- README.md
+    |-- settings.gradle
+    ```
 2. Run the command below via command prompt.
     ```sh
     docker-compose up -d
     ```
-3. An instance of Mongodb, and the Messaging API should be started.
-4. The application can be accessed in port 8080.
+3. An instance of Mongodb and Messaging API should have been started.
+4. Run the command below to check all active containers.
+    ```
+    docker ps
+    ```
+5. The application can be accessed in port 8080.
 
 ### Manual 
 #### Prerequisite/s
