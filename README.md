@@ -57,7 +57,7 @@ app
 app
 |-- src
 |----main
-|------resources
+|------resources    #Contains the application-LOCAL.yml file
 ```
 3. Build the project by executing the command below.
     ```sh
@@ -246,16 +246,6 @@ Response Body:
 ```
 The endpoint will get the total number of messages sent within the last 30 days from current date. The total count will then be divided by 4 (number of weeks within a month) to get the average, which will be the predicted count of the number of messages going to be received for the week.
 
-## Extra Endpoint
-
-There is an extra endpoint that can be invoked to generate dummy data whose date will be within the last 30 days from current date.
-
-This is for the purpose of having a data that can be used for predicting the number of messages per day/week, and for listing all sent/received messages as well.
-
-The generated messages will have a random sender/receiver based on the 5 default users.
-
-The endpoint can be access thru `/api/v1/test`
-
 ## Unit and Integration tests
 
 The unit and integration tests will run once the project is building, or when the command below is executed.
@@ -267,13 +257,13 @@ The tests are located in the folder structure shown below.
 ```
 app
 |-- src
-|----test
-|------java
-|--------com
-|----------aldren
-|------------messaging
-|--------------AppTest.java     #Integration tests
-|--------------unit             #Contain Unit tests classes
+|---- test
+|------ java
+|-------- com
+|---------- aldren
+|------------ messaging
+|-------------- AppTest.java     #Integration tests
+|-------------- unit             #Contain Unit tests classes
 ```
 
 ### Integration Tests
@@ -295,9 +285,9 @@ There are 2 collections in Mongodb for this application.
 Please see the scripts in the structure below.
 ```
 app
-|--src
-|----main
-|------scripts      #Mongodb scripts
+|-- src
+|---- main
+|------ scripts      #Mongodb scripts
 ```
 
 ## Tech Stack
