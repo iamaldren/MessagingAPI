@@ -201,18 +201,98 @@ public class MessageControllerTest {
 
     @Test
     public void testListAllMessagesByAUserPageLessThan1() throws Exception {
-        mvc.perform(get("/api/v1/messages?page=0&sender=" + USER1))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status", is(HttpStatus.BAD_REQUEST.value())))
-                .andExpect(jsonPath("$.description", is(HttpStatus.BAD_REQUEST.name())));
+        Message message1 = new Message();
+        message1.setId("000001A");
+        message1.setReceiver(USER3_FN);
+        message1.setSubject("Test 1");
+
+        String date1 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
+        message1.setSentDate(DateUtils.parseDate(date1, HelperConstants.TIMESTAMP_FORMAT));
+
+        Message message2 = new Message();
+        message2.setId("000001B");
+        message2.setReceiver(USER4_FN);
+        message2.setSubject("Test 2");
+
+        String date2 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
+        message2.setSentDate(DateUtils.parseDate(date2, HelperConstants.TIMESTAMP_FORMAT));
+
+        Message message3 = new Message();
+        message3.setId("000001C");
+        message3.setReceiver(USER5_FN);
+        message3.setSubject("Test 3");
+
+        String date3 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
+        message3.setSentDate(DateUtils.parseDate(date3, HelperConstants.TIMESTAMP_FORMAT));
+
+        List<Message> messages = new ArrayList<>();
+        messages.add(message3);
+        messages.add(message2);
+        messages.add(message1);
+
+        MessageList messageList = new MessageList();
+        messageList.setTotalPage(1);
+        messageList.setMessages(messages);
+
+        Mockito.when(svc.listMessages(eq(USER1), eq(0), eq(HelperConstants.SENDER))).thenReturn(messageList);
+
+        mvc.perform(get("/api/v1/messages?page=-1&sender=" + USER1))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.messages", hasSize(3)))
+                .andExpect(jsonPath("$.messages[0].subject", is("Test 3")))
+                .andExpect(jsonPath("$.messages[0].receiver", is(USER5_FN)))
+                .andExpect(jsonPath("$.messages[1].subject", is("Test 2")))
+                .andExpect(jsonPath("$.messages[1].receiver", is(USER4_FN)))
+                .andExpect(jsonPath("$.messages[2].subject", is("Test 1")))
+                .andExpect(jsonPath("$.messages[2].receiver", is(USER3_FN)));
     }
 
     @Test
     public void testListAllMessagesByAUserPageParamMissing() throws Exception {
-        mvc.perform(get("/api/v1/messages?&sender=" + USER1))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status", is(HttpStatus.BAD_REQUEST.value())))
-                .andExpect(jsonPath("$.description", is(HttpStatus.BAD_REQUEST.name())));
+        Message message1 = new Message();
+        message1.setId("000001A");
+        message1.setReceiver(USER3_FN);
+        message1.setSubject("Test 1");
+
+        String date1 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
+        message1.setSentDate(DateUtils.parseDate(date1, HelperConstants.TIMESTAMP_FORMAT));
+
+        Message message2 = new Message();
+        message2.setId("000001B");
+        message2.setReceiver(USER4_FN);
+        message2.setSubject("Test 2");
+
+        String date2 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
+        message2.setSentDate(DateUtils.parseDate(date2, HelperConstants.TIMESTAMP_FORMAT));
+
+        Message message3 = new Message();
+        message3.setId("000001C");
+        message3.setReceiver(USER5_FN);
+        message3.setSubject("Test 3");
+
+        String date3 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
+        message3.setSentDate(DateUtils.parseDate(date3, HelperConstants.TIMESTAMP_FORMAT));
+
+        List<Message> messages = new ArrayList<>();
+        messages.add(message3);
+        messages.add(message2);
+        messages.add(message1);
+
+        MessageList messageList = new MessageList();
+        messageList.setTotalPage(1);
+        messageList.setMessages(messages);
+
+        Mockito.when(svc.listMessages(eq(USER1), eq(0), eq(HelperConstants.SENDER))).thenReturn(messageList);
+
+        mvc.perform(get("/api/v1/messages?sender=" + USER1))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.messages", hasSize(3)))
+                .andExpect(jsonPath("$.messages[0].subject", is("Test 3")))
+                .andExpect(jsonPath("$.messages[0].receiver", is(USER5_FN)))
+                .andExpect(jsonPath("$.messages[1].subject", is("Test 2")))
+                .andExpect(jsonPath("$.messages[1].receiver", is(USER4_FN)))
+                .andExpect(jsonPath("$.messages[2].subject", is("Test 1")))
+                .andExpect(jsonPath("$.messages[2].receiver", is(USER3_FN)));
     }
 
     @Test
@@ -273,20 +353,98 @@ public class MessageControllerTest {
 
     @Test
     public void testListAllMessagesForAUserPageLessThan1() throws Exception {
-        mvc.perform(get("/api/v1/messages?page=0&receiver=" + USER2)
-                .header(X_USER_HEADER, USER4))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status", is(HttpStatus.BAD_REQUEST.value())))
-                .andExpect(jsonPath("$.description", is(HttpStatus.BAD_REQUEST.name())));
+        Message message1 = new Message();
+        message1.setId("000002A");
+        message1.setSender(USER1_FN);
+        message1.setSubject("Test 1");
+
+        String date1 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
+        message1.setSentDate(DateUtils.parseDate(date1, HelperConstants.TIMESTAMP_FORMAT));
+
+        Message message2 = new Message();
+        message2.setId("000002B");
+        message2.setSender(USER5_FN);
+        message2.setSubject("Test 2");
+
+        String date2 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
+        message2.setSentDate(DateUtils.parseDate(date2, HelperConstants.TIMESTAMP_FORMAT));
+
+        Message message3 = new Message();
+        message3.setId("000002C");
+        message3.setSender(USER4_FN);
+        message3.setSubject("Test 3");
+
+        String date3 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
+        message3.setSentDate(DateUtils.parseDate(date3, HelperConstants.TIMESTAMP_FORMAT));
+
+        List<Message> messages = new ArrayList<>();
+        messages.add(message3);
+        messages.add(message2);
+        messages.add(message1);
+
+        MessageList messageList = new MessageList();
+        messageList.setTotalPage(1);
+        messageList.setMessages(messages);
+
+        Mockito.when(svc.listMessages(eq(USER2), eq(0), eq(HelperConstants.RECEIVER))).thenReturn(messageList);
+
+        mvc.perform(get("/api/v1/messages?page=-1&receiver=" + USER2))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.messages", hasSize(3)))
+                .andExpect(jsonPath("$.messages[0].subject", is("Test 3")))
+                .andExpect(jsonPath("$.messages[0].sender", is(USER4_FN)))
+                .andExpect(jsonPath("$.messages[1].subject", is("Test 2")))
+                .andExpect(jsonPath("$.messages[1].sender", is(USER5_FN)))
+                .andExpect(jsonPath("$.messages[2].subject", is("Test 1")))
+                .andExpect(jsonPath("$.messages[2].sender", is(USER1_FN)));
     }
 
     @Test
     public void testListAllMessagesForAUserPageParamMissing() throws Exception {
-        mvc.perform(get("/api/v1/messages?receiver=" + USER2)
-                .header(X_USER_HEADER, USER4))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status", is(HttpStatus.BAD_REQUEST.value())))
-                .andExpect(jsonPath("$.description", is(HttpStatus.BAD_REQUEST.name())));
+        Message message1 = new Message();
+        message1.setId("000002A");
+        message1.setSender(USER1_FN);
+        message1.setSubject("Test 1");
+
+        String date1 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
+        message1.setSentDate(DateUtils.parseDate(date1, HelperConstants.TIMESTAMP_FORMAT));
+
+        Message message2 = new Message();
+        message2.setId("000002B");
+        message2.setSender(USER5_FN);
+        message2.setSubject("Test 2");
+
+        String date2 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
+        message2.setSentDate(DateUtils.parseDate(date2, HelperConstants.TIMESTAMP_FORMAT));
+
+        Message message3 = new Message();
+        message3.setId("000002C");
+        message3.setSender(USER4_FN);
+        message3.setSubject("Test 3");
+
+        String date3 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
+        message3.setSentDate(DateUtils.parseDate(date3, HelperConstants.TIMESTAMP_FORMAT));
+
+        List<Message> messages = new ArrayList<>();
+        messages.add(message3);
+        messages.add(message2);
+        messages.add(message1);
+
+        MessageList messageList = new MessageList();
+        messageList.setTotalPage(1);
+        messageList.setMessages(messages);
+
+        Mockito.when(svc.listMessages(eq(USER2), eq(0), eq(HelperConstants.RECEIVER))).thenReturn(messageList);
+
+        mvc.perform(get("/api/v1/messages?receiver=" + USER2))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.messages", hasSize(3)))
+                .andExpect(jsonPath("$.messages[0].subject", is("Test 3")))
+                .andExpect(jsonPath("$.messages[0].sender", is(USER4_FN)))
+                .andExpect(jsonPath("$.messages[1].subject", is("Test 2")))
+                .andExpect(jsonPath("$.messages[1].sender", is(USER5_FN)))
+                .andExpect(jsonPath("$.messages[2].subject", is("Test 1")))
+                .andExpect(jsonPath("$.messages[2].sender", is(USER1_FN)));
     }
 
     @Test

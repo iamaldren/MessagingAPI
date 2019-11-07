@@ -300,10 +300,32 @@ curl http://localhost:8080/api/v1/messages?forecast=Week
 
 ## Unit and Integration tests
 
-The unit and integration tests will run once the project is building, or when the command below is executed.
-```sh
-gradle test
-```
+There are 2 ways to run both the unit and integration tests.
+
+### Via Docker
+
+1. Container for messaging-api should be running.
+2. Go inside the docker image bash by executing the command below.
+    ```sh
+    docker exec -it messaging-api bash
+    ```
+3. Inside the docker image bash, execute the command below to navigate to Messaging API project dir.
+    ```sh
+    cd /home/MessagingAPI
+    ```
+4. Execute the command below to run the tests. Both unit and integration test will run.
+    ```sh
+    gradle cleanTest test
+    ```
+5. First run may take a while to complete since it will download all library dependency for the project.
+
+### Manual running
+
+1. On a command prompt, navigate to project directory location.
+2. Execute the command below.
+    ```sh
+    gradle cleanTest test
+    ```
 
 The tests are located in the folder structure shown below.
 ```
@@ -318,13 +340,13 @@ app
 |-------------- unit             #Contain Unit tests classes
 ```
 
-### Integration Tests
+#### Integration Tests
 
 The integration tests are using an embedded Mongodb for database transactions. Mocking of data is being avoided so the end-to-end code process will be executed.
 
 `WARNING`: Though the purpose of an integration test is to check the end-to-end process, including database transactions, it is still advisable to do testing with an actual database instance. An embedded database may behave differently compared to the actual one.
 
-### Unit Tests
+#### Unit Tests
 
 The unit tests are doing data mock-ups for all database related transactions. Its purpose is mainly to test the logic flow per each function/method of the classes.
 

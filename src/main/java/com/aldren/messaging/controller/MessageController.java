@@ -66,8 +66,9 @@ public class MessageController {
                     .build()));
         }
 
-        if(!page.isPresent() || page.get() < 1) {
-            throw new BadRequestException("Page cannot be less than 1.");
+        int pagination = 0;
+        if(page.isPresent() && page.get() > 1) {
+            pagination = page.get() - 1;
         }
 
         String user = "";
@@ -83,7 +84,7 @@ public class MessageController {
             throw new BadRequestException("Atleast 1 of the params[sender, receiver] must be present for this endpoint.");
         }
 
-        return ResponseEntity.of(Optional.of(svc.listMessages(user, (page.get() - 1), role)));
+        return ResponseEntity.of(Optional.of(svc.listMessages(user, pagination, role)));
     }
 
     @PostConstruct
