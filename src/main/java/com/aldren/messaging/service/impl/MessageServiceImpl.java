@@ -4,7 +4,7 @@ import com.aldren.messaging.constants.EnumConstants;
 import com.aldren.messaging.constants.HelperConstants;
 import com.aldren.messaging.document.Messages;
 import com.aldren.messaging.document.Users;
-import com.aldren.messaging.exception.ReadMessageFailException;
+import com.aldren.messaging.exception.MessageDoesNotExistException;
 import com.aldren.messaging.exception.UserDoesNotExistException;
 import com.aldren.messaging.model.Message;
 import com.aldren.messaging.model.MessageList;
@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -39,10 +38,8 @@ public class MessageServiceImpl implements MessageService {
     private ModelMapper mapper = new ModelMapper();
 
     @Override
-    public void send(String sender, Message message) throws UserDoesNotExistException, ParseException {
-        Users poster = userRepo.findByUserId(sender);
-
-        message.setSender(sender);
+    public void send(Message message) throws UserDoesNotExistException, ParseException {
+        Users poster = userRepo.findByUserId(message.getSender());
 
         String date = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
         message.setSentDate(DateUtils.parseDate(date, HelperConstants.TIMESTAMP_FORMAT));
@@ -56,24 +53,19 @@ public class MessageServiceImpl implements MessageService {
         Messages messages = mapMessage(message);
         messages.setSender(poster.getId());
         messages.setReceiver(recipient.get().getId());
-        messages.setStatus(EnumConstants.MessageStatus.UNREAD.toString());
 
         msgRepo.save(messages);
     }
 
     @Override
-    public List<Message> read(String receiver) throws ReadMessageFailException {
-        Users recipient = userRepo.findByUserId(receiver);
-        List<Messages> messages = msgRepo.findUnreadMessages(recipient.getId(), getSort());
+    public Message read(String messageId) throws MessageDoesNotExistException {
+        Optional<Messages> messages = Optional.ofNullable(msgRepo.findByPrimaryId(messageId));
 
-        if (!messages.isEmpty()) {
-            int updateCount = msgRepo.updateMessageStatus(messages);
-            if (updateCount < messages.size()) {
-                throw new ReadMessageFailException("Something went wrong in reading the message.");
-            }
+        if(!messages.isPresent()) {
+            throw new MessageDoesNotExistException(String.format("Message with ID %s doesn't exists in the database", messageId));
         }
 
-        return messages.stream().map(this::convertMessage).collect(Collectors.toList());
+        return convertMessage(messages.get());
     }
 
     @Override
@@ -103,8 +95,8 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public String messageCountPrediction(String type) {
-        switch (type.toLowerCase()) {
+    public String messageCountPrediction(String forecast) {
+        switch (forecast.toLowerCase()) {
             case HelperConstants.DAY:
                 return predictMessageCountForTheDay();
             default:
@@ -135,8 +127,16 @@ public class MessageServiceImpl implements MessageService {
     }
 
     private Message convertMessage(Messages messages) {
-        messages.setSender(userRepo.findByPrimaryId(messages.getSender()).get(0).getUserId());
-        messages.setReceiver(userRepo.findByPrimaryId(messages.getReceiver()).get(0).getUserId());
+        if(messages.getSender() != null) {
+            Users sender = userRepo.findByPrimaryId(messages.getSender()).get(0);
+            messages.setSender(String.format("%s %s", sender.getFirstName(), sender.getLastName()));
+        }
+
+        if(messages.getReceiver() != null) {
+            Users receiver = userRepo.findByPrimaryId(messages.getReceiver()).get(0);
+            messages.setReceiver(String.format("%s %s", receiver.getFirstName(), receiver.getLastName()));
+        }
+
         return mapMessage(messages);
     }
 
