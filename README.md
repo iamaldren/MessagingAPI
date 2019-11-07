@@ -183,7 +183,7 @@ Response Body:
 
 The list of all sent messages can be retrieved through this endpoint, and it implements pagination. The response will return a JSON object that indicates the number of total pages, and the list of messages in that page. The maximum number of messages per page is `10`.
 
-The `page` parameter must always be numeric, and has a minimum value of 1. If the value passed to the parameter is less than 1, it will throw an `HTTP Status 400`.
+The `page` parameter is optional, if the parameter is not present it will return the first page.
 
 The `sender` parameter is required for retrieving the list of all sent messages.
 
@@ -230,13 +230,13 @@ Response Body:
 
 The list of all received messages can be retrieved in this endpoint. 
 
-The `page` parameter must always be numeric, and has a minimum value of 1. If the value passed to the parameter is less than 1, it will throw an `HTTP Status 400`.
+The `page` parameter is optional, if the parameter is not present it will return the first page.
 
 The `receiver` parameter is required for retrieving the list of all received messages.
 
 `Curl Command`:
 ```sh
-curl http://localhost:8080/api/v1/messages?receiver=steverogers&page=1
+curl http://localhost:8080/api/v1/messages?receiver=steverogers
 ```
 
 #### Prediction of number of messages received
