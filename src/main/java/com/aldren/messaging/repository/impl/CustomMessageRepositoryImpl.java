@@ -18,20 +18,8 @@ import java.util.stream.Collectors;
 
 public class CustomMessageRepositoryImpl implements CustomMessageRepository {
 
-    private static final String MESSAGES = "messages";
-
     @Autowired
     private MongoTemplate mongoTemplate;
-
-    @Override
-    public int updateMessageStatus(List<Messages> messages) {
-        List<WriteModel<Document>> update = messages.stream().map(message -> new UpdateOneModel<Document>(
-                new Document("_id", new ObjectId(message.getId())), // filter
-                new Document("$set", new Document("status", EnumConstants.MessageStatus.READ.toString())) // update
-        )).collect(Collectors.toList());
-
-        return mongoTemplate.getCollection(MESSAGES).bulkWrite(update).getModifiedCount();
-    }
 
     @Override
     public int messageCountByDateDuration(Date startDate, Date endDate) {
