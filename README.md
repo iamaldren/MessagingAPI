@@ -74,12 +74,24 @@ app
 
 ## Messaging API Application
 
-The application is a RESTful application that exposes 5 endpoints.
-- /api/v1/message/send
-- /api/v1/message/read
-- /api/v1/message/sent
-- /api/v1/message/receive
-- /api/v1/message/predict
+### Requirement
+
+It will be enough if the message contains the following fields:
+- sender
+- receiver
+- subject
+- content
+- sent date
+
+It should be a restful application, no ui needed. The required endpoints are: 
+- Send message
+- List all received messages for a user
+- List all sent messages by a user
+- Read message details
+- An endpoint to estimate the number of total messages that will be sent probably for the rest of the day
+- An endpoint to estimate the number of total messages that will be sent probably for the rest of the week
+
+### Endpoints
 
 By default, the application has 5 default users whose user IDs are:
 - tonystark
@@ -90,76 +102,80 @@ By default, the application has 5 default users whose user IDs are:
 
 These IDs can be used for the purpose of testing the application.
 
-### Send Message
+#### Send Message
 ```sh
-POST /api/v1/message/send
-X-User: tonystark
+POST /api/v1/messages
 
 Request Body:
 {
+    "sender": "tonystark",
     "receiver": "steverogers",
     "subject": "Shawarma",
     "content": "Where is that shawarma place again?"
 }
 ```
 
-X-User is the current system user.
-`WARNING`: In a real world scenario, the `sender` shouldn't be passed in the X-User header. Proper authentication should be implemented.
-
 The endpoint will return an `HTTP Status 404` in case the receiver does not exists in the database. `Sender` user will not be validated, it is assumed that the user is existing in the database since he can use the system.
 
-Once the message has been sent to the user, it will have a message status of `UNREAD`.
-
-### Read Message
+`Curl Command`:
+```
+curl -d '{"sender":"tonystark", "receiver":"steverogers", "subject": "Shawarma", "content": "Where is that shawarma place again?"}' -H "Content-Type: application/json" -X POST http://localhost:8080/api/v1/messages
+```
+#### Read Message Detail
 ```sh
-GET /api/v1/message/read
-X-User: mariahill
+GET /api/v1/messages/{id}
 
 Response Body:
-[
-    {
-        "sender": "nickfury",
-        "receiver": "mariahill",
-        "subject": "Avengers Initiative",
-        "content": "Let's start the initiative.",
-        "sentDate": "2019-11-05T15:53:52.779+0000"
-    }
-]
+{
+    "id": "5dc39284fca1360001ec8896",
+    "sender": "Tony Stark",
+    "receiver": "Steve Rogers",
+    "subject": "Shawarma",
+    "content": "Where is that shawarma place again?",
+    "sentDate": "2019-11-07T03:41:56.486+0000"
+}
 ```
 
-This endpoint will only display all `UNREAD` messages for the user, if there are none it will return an empty list.
+This endpoint will display the details for a specific message. The message will be identified by the message ID passed as a Path variable in the URL.
 
-The messages will be updated to `READ` status after they have been accessed. In case there was an issue with updating, the endpoint will throw an `HTTP Status 500`.
+In case the message ID passed doesn't exists in the database, it will throw an `HTTP Status 404`.
 
-### List of all Sent Messages
+`Curl Command`:
+```
+curl http://localhost:8080/api/v1/messages/{id}
+```
+
+#### List of all Sent Messages by a User
 ```sh
-GET /api/v1/message/sent?page=1
-X-User: tonystark
+GET /api/v1/messages?sender=tonystark&page=1
 
 Response Body:
 {
     "totalPage": 10,
     "messages": [
         {
-            "sender": "tonystark",
-            "receiver": "mariahill",
+            "id": "5dc39284fca1360001ec8896",
+            "receiver": "Steve Rogers",
+            "subject": "Shawarma",
+            "sentDate": "2019-11-07T03:41:56.486+0000"
+        },
+        {
+            "id": "5dc3925afca1360001ec887c",
+            "receiver": "Maria Hill",
             "subject": "Test 4",
-            "content": "Test message 4 from 1 day/s ago",
-            "sentDate": "2019-10-11T23:49:26.652+0000"
+            "sentDate": "2019-11-06T03:41:14.874+0000"
         },
         {
-            "sender": "tonystark",
-            "receiver": "thorodinson",
-            "subject": "Test 3",
-            "content": "Test message 3 from 2 day/s ago",
-            "sentDate": "2019-10-09T23:49:26.644+0000"
+            "id": "5dc3925afca1360001ec887e",
+            "receiver": "Maria Hill",
+            "subject": "Test 6",
+            "sentDate": "2019-11-06T03:41:14.874+0000"
         },
         {
-            "sender": "tonystark",
-            "receiver": "steverogers",
-            "subject": "Test 1",
-            "content": "Test message 1 from 3 day/s ago",
-            "sentDate": "2019-10-07T23:49:26.615+0000"
+            "id": "5dc3925afca1360001ec8883",
+            "receiver": "Maria Hill",
+            "subject": "Test 11",
+            "sentDate": "2019-11-06T03:41:14.874+0000"
         }
     ]
 }
@@ -169,35 +185,44 @@ The list of all sent messages can be retrieved through this endpoint, and it imp
 
 The `page` parameter must always be numeric, and has a minimum value of 1. If the value passed to the parameter is less than 1, it will throw an `HTTP Status 400`.
 
-### List of all Received messages
+The `sender` parameter is required for retrieving the list of all sent messages.
+
+`Curl Command`:
 ```sh
-GET /api/v1/message/receive?page=1
-X-User: steverogers
+curl http://localhost:8080/api/v1/messages?sender=tonystark&page=1
+```
+
+#### List of all Received messages for a User
+```sh
+GET /api/v1/messages?receiver=steverogers&page=1
 
 Response Body:
 {
     "totalPage": 10,
     "messages": [
         {
-            "sender": "nickfury",
-            "receiver": "steverogers",
-            "subject": "Test 2",
-            "content": "Test message 2 from 1 day/s ago",
-            "sentDate": "2019-11-04T23:49:26.910+0000"
+            "id": "5dc39284fca1360001ec8896",
+            "sender": "Tony Stark",
+            "subject": "Shawarma",
+            "sentDate": "2019-11-07T03:41:56.486+0000"
         },
         {
-            "sender": "nickfury",
-            "receiver": "steverogers",
+            "id": "5dc3925afca1360001ec8879",
+            "sender": "Maria Hill",
+            "subject": "Test 1",
+            "sentDate": "2019-11-06T03:41:14.874+0000"
+        },
+        {
+            "id": "5dc3925afca1360001ec887d",
+            "sender": "Thor Odinson",
+            "subject": "Test 5",
+            "sentDate": "2019-11-06T03:41:14.874+0000"
+        },
+        {
+            "id": "5dc3925afca1360001ec887f",
+            "sender": "Maria Hill",
             "subject": "Test 7",
-            "content": "Test message 7 from 1 day/s ago",
-            "sentDate": "2019-11-04T23:49:26.910+0000"
-        },
-        {
-            "sender": "thorodinson",
-            "receiver": "steverogers",
-            "subject": "Test 8",
-            "content": "Test message 8 from 1 day/s ago",
-            "sentDate": "2019-11-04T23:49:26.910+0000"
+            "sentDate": "2019-11-06T03:41:14.874+0000"
         }
     ]
 }
@@ -205,15 +230,22 @@ Response Body:
 
 The list of all received messages can be retrieved in this endpoint. 
 
-It has the same behavior as the `/api/v1/message/sent` endpoint.
+The `page` parameter must always be numeric, and has a minimum value of 1. If the value passed to the parameter is less than 1, it will throw an `HTTP Status 400`.
 
-### Prediction of number of messages received
+The `receiver` parameter is required for retrieving the list of all received messages.
 
-The endpoint will have a `type` parameter, which will only accept 2 string values. The values supported are `Day` and `Week`, both are `case insensitive`.
+`Curl Command`:
+```sh
+curl http://localhost:8080/api/v1/messages?receiver=steverogers&page=1
+```
+
+#### Prediction of number of messages received
+
+The endpoint will have a `forecast` parameter, which will only accept 2 string values. The values supported are `Day` and `Week`, both are `case insensitive`.
 
 In case any other values, aside from the mentioned ones, were passed to the parameter, the endpoint will throw an `Http Status 400`.
 
-#### Extra Endpoint
+##### Extra Endpoint
 
 There is an extra endpoint that can be invoked to generate dummy data whose date will be within the last 30 days from current date.
 
@@ -223,9 +255,14 @@ The generated messages will have a random sender/receiver based on the 5 default
 
 The endpoint can be access thru `/api/v1/test`
 
-#### For the Day
+`Curl Command`:
 ```sh
-GET /api/v1/message/predict?type=Day
+curl http://localhost:8080/api/v1/test
+```
+
+##### For the Day
+```sh
+GET /api/v1/messages?forecast=Day
 
 Response Body:
 {
@@ -237,9 +274,14 @@ Response Body:
 ```
 The endpoint will get the total number of messages sent within the last 14 days from current date. The total count will then be divided by 14 to get the average, which will be the predicted count of the number of messages going to be received for the day.
 
-#### For the Week
+`Curl Command`:
 ```sh
-GET /api/v1/message/predict?type=Week
+curl http://localhost:8080/api/v1/messages?forecast=Day
+```
+
+##### For the Week
+```sh
+GET /api/v1/messages?forecast=Week
 
 Response Body:
 {
@@ -250,6 +292,11 @@ Response Body:
 }
 ```
 The endpoint will get the total number of messages sent within the last 30 days from current date. The total count will then be divided by 4 (number of weeks within a month) to get the average, which will be the predicted count of the number of messages going to be received for the week.
+
+`Curl Command`:
+```sh
+curl http://localhost:8080/api/v1/messages?forecast=Week
+```
 
 ## Unit and Integration tests
 
@@ -337,9 +384,6 @@ There are 2 collections in Mongodb for this application.
                      },
                      sentDate: {
                          bsonType: "date"
-                     },
-                     status: {
-                         enum: [ "READ", "UNREAD" ]
                      }
                  }
              }
