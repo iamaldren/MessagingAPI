@@ -17,7 +17,7 @@ public interface UsersRepository extends MongoRepository<Users, Long> {
     Users findByUserId(String userId);
 
     @Cacheable(key = "#id")
-    @Query(value = "{'_id': ?0}", fields = "{userId: 1}")
+    @Query(value = "{'_id': ?0}", fields = "{userId: 1, firstName: 1, lastName: 1}")
     List<Users> findByPrimaryId(String id);
 
 }

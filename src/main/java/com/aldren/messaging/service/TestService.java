@@ -56,7 +56,6 @@ public class TestService {
                 message.setSubject("Test " + j);
                 message.setContent(String.format("Test message %d from %d day/s ago", j, daysAgo));
                 message.setSentDate(DateUtils.parseDate(date, HelperConstants.TIMESTAMP_FORMAT));
-                message.setStatus(EnumConstants.MessageStatus.READ.toString());
 
                 messages.add(message);
 

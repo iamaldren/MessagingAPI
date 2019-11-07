@@ -13,6 +13,8 @@ import java.util.Date;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Message {
 
+    private String id;
+
     private String sender;
 
     private String receiver;

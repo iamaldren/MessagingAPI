@@ -7,8 +7,6 @@ import java.util.List;
 
 public interface CustomMessageRepository {
 
-    int updateMessageStatus(List<Messages> messages);
-
     int messageCountByDateDuration(Date startDate, Date endDate);
 
 }
