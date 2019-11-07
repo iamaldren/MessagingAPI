@@ -48,6 +48,11 @@ public class MessageServiceTest {
     private static final String USER3_ID = "0000003";
     private static final String USER4_ID = "0000004";
     private static final String USER5_ID = "0000005";
+    private static final String USER1_FN = "Tony Stark";
+    private static final String USER2_FN = "Steve Rogers";
+    private static final String USER3_FN = "Maria Hill";
+    private static final String USER4_FN = "Nick Fury";
+    private static final String USER5_FN = "Thor Odinson";
     @Autowired
     private MessageService svc;
     @MockBean
@@ -149,7 +154,7 @@ public class MessageServiceTest {
     }
 
     @Test
-    public void testReadSuccessWithValues() throws ParseException, MessageDoesNotExistException {
+    public void testReadSuccess() throws ParseException, MessageDoesNotExistException {
         Messages messages1 = new Messages();
         messages1.setId("000000A");
         messages1.setSender(USER1_ID);
@@ -164,8 +169,8 @@ public class MessageServiceTest {
 
         Message message = svc.read("000000A");
 
-        assertThat(message.getReceiver()).isEqualTo(USER2);
-        assertThat(message.getSender()).isEqualTo(USER1);
+        assertThat(message.getReceiver()).isEqualTo(USER2_FN);
+        assertThat(message.getSender()).isEqualTo(USER1_FN);
         assertThat(message.getSubject()).isEqualTo(messages1.getSubject());
         assertThat(message.getContent()).isEqualTo(messages1.getContent());
     }
@@ -183,30 +188,24 @@ public class MessageServiceTest {
     public void testListSentMessages() throws ParseException {
         Messages messages1 = new Messages();
         messages1.setId("000000A");
-        messages1.setSender(USER1_ID);
         messages1.setReceiver(USER2_ID);
         messages1.setSubject("Test 1");
-        messages1.setContent("Message Content 1");
 
         String date1 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
         messages1.setSentDate(DateUtils.parseDate(date1, HelperConstants.TIMESTAMP_FORMAT));
 
         Messages messages2 = new Messages();
         messages2.setId("000000B");
-        messages2.setSender(USER1_ID);
         messages2.setReceiver(USER3_ID);
         messages2.setSubject("Test 2");
-        messages2.setContent("Message Content 2");
 
         String date2 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
         messages2.setSentDate(DateUtils.parseDate(date2, HelperConstants.TIMESTAMP_FORMAT));
 
         Messages messages3 = new Messages();
         messages3.setId("000000C");
-        messages3.setSender(USER1_ID);
         messages3.setReceiver(USER4_ID);
         messages3.setSubject("Test 3");
-        messages3.setContent("Message Content 3");
 
         String date3 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
         messages3.setSentDate(DateUtils.parseDate(date3, HelperConstants.TIMESTAMP_FORMAT));
@@ -220,20 +219,14 @@ public class MessageServiceTest {
 
         MessageList message = svc.listMessages(USER1, 1, HelperConstants.SENDER);
 
-        assertThat(message.getMessages().get(0).getReceiver()).isEqualTo(USER4);
-        assertThat(message.getMessages().get(0).getSender()).isEqualTo(USER1);
+        assertThat(message.getMessages().get(0).getReceiver()).isEqualTo(USER4_FN);
         assertThat(message.getMessages().get(0).getSubject()).isEqualTo(messages3.getSubject());
-        assertThat(message.getMessages().get(0).getContent()).isEqualTo(messages3.getContent());
 
-        assertThat(message.getMessages().get(1).getReceiver()).isEqualTo(USER3);
-        assertThat(message.getMessages().get(1).getSender()).isEqualTo(USER1);
+        assertThat(message.getMessages().get(1).getReceiver()).isEqualTo(USER3_FN);
         assertThat(message.getMessages().get(1).getSubject()).isEqualTo(messages2.getSubject());
-        assertThat(message.getMessages().get(1).getContent()).isEqualTo(messages2.getContent());
 
-        assertThat(message.getMessages().get(2).getReceiver()).isEqualTo(USER2);
-        assertThat(message.getMessages().get(2).getSender()).isEqualTo(USER1);
+        assertThat(message.getMessages().get(2).getReceiver()).isEqualTo(USER2_FN);
         assertThat(message.getMessages().get(2).getSubject()).isEqualTo(messages1.getSubject());
-        assertThat(message.getMessages().get(2).getContent()).isEqualTo(messages1.getContent());
     }
 
     @Test
@@ -241,9 +234,7 @@ public class MessageServiceTest {
         Messages messages1 = new Messages();
         messages1.setId("000000A");
         messages1.setSender(USER1_ID);
-        messages1.setReceiver(USER5_ID);
         messages1.setSubject("I am Ironman");
-        messages1.setContent("Yes, that's correct.");
 
         String date1 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
         messages1.setSentDate(DateUtils.parseDate(date1, HelperConstants.TIMESTAMP_FORMAT));
@@ -251,9 +242,7 @@ public class MessageServiceTest {
         Messages messages2 = new Messages();
         messages2.setId("000000B");
         messages2.setSender(USER2_ID);
-        messages2.setReceiver(USER5_ID);
         messages2.setSubject("Super Soldier Serum");
-        messages2.setContent("That's where my abilities came from.");
 
         String date2 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
         messages2.setSentDate(DateUtils.parseDate(date2, HelperConstants.TIMESTAMP_FORMAT));
@@ -261,9 +250,7 @@ public class MessageServiceTest {
         Messages messages3 = new Messages();
         messages3.setId("000000C");
         messages3.setSender(USER4_ID);
-        messages3.setReceiver(USER5_ID);
         messages3.setSubject("S.H.I.E.L.D");
-        messages3.setContent("I would like to invite you to join the Avengers Initiative.");
 
         String date3 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
         messages3.setSentDate(DateUtils.parseDate(date3, HelperConstants.TIMESTAMP_FORMAT));
@@ -277,20 +264,14 @@ public class MessageServiceTest {
 
         MessageList message = svc.listMessages(USER5, 1, HelperConstants.RECEIVER);
 
-        assertThat(message.getMessages().get(0).getReceiver()).isEqualTo(USER5);
-        assertThat(message.getMessages().get(0).getSender()).isEqualTo(USER4);
+        assertThat(message.getMessages().get(0).getSender()).isEqualTo(USER4_FN);
         assertThat(message.getMessages().get(0).getSubject()).isEqualTo(messages3.getSubject());
-        assertThat(message.getMessages().get(0).getContent()).isEqualTo(messages3.getContent());
 
-        assertThat(message.getMessages().get(1).getReceiver()).isEqualTo(USER5);
-        assertThat(message.getMessages().get(1).getSender()).isEqualTo(USER2);
+        assertThat(message.getMessages().get(1).getSender()).isEqualTo(USER2_FN);
         assertThat(message.getMessages().get(1).getSubject()).isEqualTo(messages2.getSubject());
-        assertThat(message.getMessages().get(1).getContent()).isEqualTo(messages2.getContent());
 
-        assertThat(message.getMessages().get(2).getReceiver()).isEqualTo(USER5);
-        assertThat(message.getMessages().get(2).getSender()).isEqualTo(USER1);
+        assertThat(message.getMessages().get(2).getSender()).isEqualTo(USER1_FN);
         assertThat(message.getMessages().get(2).getSubject()).isEqualTo(messages1.getSubject());
-        assertThat(message.getMessages().get(2).getContent()).isEqualTo(messages1.getContent());
     }
 
     @Test
