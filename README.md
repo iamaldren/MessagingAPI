@@ -56,7 +56,7 @@ app
 |----main
 |------scripts      #Mongodb scripts
 ```
-2. Update the application-LOCAL.yml file, located in the folders structure below, with correct Mongodb credentials and URL.
+2. Update the application-LOCAL.yml file, located in the folders structure below, with the correct Mongodb credentials and URL.
 ```
 app
 |-- src
@@ -93,7 +93,7 @@ It should be a restful application, no ui needed. The required endpoints are:
 
 ### Endpoints
 
-By default, the application has 5 default users whose user IDs are:
+By default, the application has 5 default users with the following user IDs:
 - tonystark
 - steverogers
 - nickfury
@@ -115,7 +115,7 @@ Request Body:
 }
 ```
 
-The endpoint will return an `HTTP Status 404` in case the receiver does not exists in the database. `Sender` user will not be validated, it is assumed that the user is existing in the database since he can use the system.
+The endpoint will return an `HTTP Status 404` in case the receiver does not exist in the database. `Sender` user will not be validated, it is assumed that the user is existing in the database since he can use the system.
 
 `Curl Command`:
 ```
@@ -138,7 +138,7 @@ Response Body:
 
 This endpoint will display the details for a specific message. The message will be identified by the message ID passed as a Path variable in the URL.
 
-In case the message ID passed doesn't exists in the database, it will throw an `HTTP Status 404`.
+In case the message ID passed doesn't exist in the database, it will throw an `HTTP Status 404`.
 
 `Curl Command`:
 ```
@@ -272,7 +272,7 @@ Response Body:
     "information": "Predicted message count to receive for the day is 22"
 }
 ```
-The endpoint will get the total number of messages sent within the last 14 days from current date. The total count will then be divided by 14 to get the average, which will be the predicted count of the number of messages going to be received for the day.
+The endpoint will get the total number of messages sent within the last 14 days from current date. The total count will then be divided by 14 to get the average. The result will be the predicted count of the number of messages per day.
 
 `Curl Command`:
 ```sh
