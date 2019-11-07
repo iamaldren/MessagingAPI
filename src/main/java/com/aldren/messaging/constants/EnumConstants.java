@@ -34,20 +34,4 @@ public class EnumConstants {
         }
     }
 
-    public enum MessageStatus {
-        READ("READ"),
-        UNREAD("UNREAD");
-
-        private final String text;
-
-        MessageStatus(final String text) {
-            this.text = text;
-        }
-
-        @Override
-        public String toString() {
-            return text;
-        }
-    }
-
 }

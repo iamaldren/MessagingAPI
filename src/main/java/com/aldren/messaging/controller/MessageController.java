@@ -66,7 +66,7 @@ public class MessageController {
                     .build()));
         }
 
-        if(page.isPresent() && page.get() < 1) {
+        if(!page.isPresent() || page.get() < 1) {
             throw new BadRequestException("Page cannot be less than 1.");
         }
 

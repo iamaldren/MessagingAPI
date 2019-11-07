@@ -208,6 +208,14 @@ public class MessageControllerTest {
     }
 
     @Test
+    public void testListAllMessagesByAUserPageParamMissing() throws Exception {
+        mvc.perform(get("/api/v1/messages?&sender=" + USER1))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status", is(HttpStatus.BAD_REQUEST.value())))
+                .andExpect(jsonPath("$.description", is(HttpStatus.BAD_REQUEST.name())));
+    }
+
+    @Test
     public void testListAllMessagesByAUserMissingParam() throws Exception {
         mvc.perform(get("/api/v1/messages?page=1"))
                 .andExpect(status().isBadRequest())
@@ -266,6 +274,15 @@ public class MessageControllerTest {
     @Test
     public void testListAllMessagesForAUserPageLessThan1() throws Exception {
         mvc.perform(get("/api/v1/messages?page=0&receiver=" + USER2)
+                .header(X_USER_HEADER, USER4))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status", is(HttpStatus.BAD_REQUEST.value())))
+                .andExpect(jsonPath("$.description", is(HttpStatus.BAD_REQUEST.name())));
+    }
+
+    @Test
+    public void testListAllMessagesForAUserPageParamMissing() throws Exception {
+        mvc.perform(get("/api/v1/messages?receiver=" + USER2)
                 .header(X_USER_HEADER, USER4))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status", is(HttpStatus.BAD_REQUEST.value())))
