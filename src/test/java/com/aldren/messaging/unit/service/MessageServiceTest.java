@@ -4,7 +4,7 @@ import com.aldren.messaging.constants.EnumConstants;
 import com.aldren.messaging.constants.HelperConstants;
 import com.aldren.messaging.document.Messages;
 import com.aldren.messaging.document.Users;
-import com.aldren.messaging.exception.ReadMessageFailException;
+import com.aldren.messaging.exception.MessageDoesNotExistException;
 import com.aldren.messaging.exception.UserDoesNotExistException;
 import com.aldren.messaging.model.Message;
 import com.aldren.messaging.model.MessageList;
@@ -98,6 +98,7 @@ public class MessageServiceTest {
         thorodinson.setRole(EnumConstants.UserRole.USER.toString());
         thorodinson.setStatus(EnumConstants.UserStatus.ACTIVE.toString());
 
+        message.setSender(USER1);
         message.setReceiver(USER2);
         message.setSubject("Test");
         message.setContent("Message Content!");
@@ -131,7 +132,7 @@ public class MessageServiceTest {
 
     @Test
     public void testSendSuccess() throws UserDoesNotExistException, ParseException {
-        svc.send(USER1, message);
+        svc.send(message);
 
         Mockito.verify(msgRepo, Mockito.times(1)).save(Mockito.any());
     }
@@ -141,100 +142,40 @@ public class MessageServiceTest {
         Mockito.when(userRepo.findByUserId(message.getReceiver())).thenReturn(null);
 
         assertThrows(UserDoesNotExistException.class, () -> {
-            svc.send(USER1, message);
+            svc.send(message);
         });
 
         Mockito.verify(msgRepo, Mockito.times(0)).save(Mockito.any());
     }
 
     @Test
-    public void testReadSuccessWithValues() throws ParseException, ReadMessageFailException {
+    public void testReadSuccessWithValues() throws ParseException, MessageDoesNotExistException {
         Messages messages1 = new Messages();
         messages1.setId("000000A");
         messages1.setSender(USER1_ID);
         messages1.setReceiver(USER2_ID);
         messages1.setSubject("Test 1");
         messages1.setContent("Message Content 1");
-        messages1.setStatus(EnumConstants.MessageStatus.UNREAD.toString());
 
         String date1 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
         messages1.setSentDate(DateUtils.parseDate(date1, HelperConstants.TIMESTAMP_FORMAT));
 
-        Messages messages2 = new Messages();
-        messages2.setId("000000B");
-        messages2.setSender(USER1_ID);
-        messages2.setReceiver(USER2_ID);
-        messages2.setSubject("Test 2");
-        messages2.setContent("Message Content 2");
-        messages2.setStatus(EnumConstants.MessageStatus.UNREAD.toString());
+        Mockito.when(msgRepo.findByPrimaryId(eq("000000A"))).thenReturn(messages1);
 
-        String date2 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
-        messages2.setSentDate(DateUtils.parseDate(date2, HelperConstants.TIMESTAMP_FORMAT));
+        Message message = svc.read("000000A");
 
-        List<Messages> messages = new ArrayList<>();
-        messages.add(messages2);
-        messages.add(messages1);
-
-        Mockito.when(msgRepo.findUnreadMessages(Mockito.anyString(), Mockito.any())).thenReturn(messages);
-        Mockito.when(msgRepo.updateMessageStatus(messages)).thenReturn(2);
-
-        List<Message> message = svc.read(USER2);
-
-        assertThat(message.get(0).getReceiver()).isEqualTo(USER2);
-        assertThat(message.get(0).getSender()).isEqualTo(USER1);
-        assertThat(message.get(0).getSubject()).isEqualTo(messages2.getSubject());
-        assertThat(message.get(0).getContent()).isEqualTo(messages2.getContent());
-
-        assertThat(message.get(1).getReceiver()).isEqualTo(USER2);
-        assertThat(message.get(1).getSender()).isEqualTo(USER1);
-        assertThat(message.get(1).getSubject()).isEqualTo(messages1.getSubject());
-        assertThat(message.get(1).getContent()).isEqualTo(messages1.getContent());
+        assertThat(message.getReceiver()).isEqualTo(USER2);
+        assertThat(message.getSender()).isEqualTo(USER1);
+        assertThat(message.getSubject()).isEqualTo(messages1.getSubject());
+        assertThat(message.getContent()).isEqualTo(messages1.getContent());
     }
 
     @Test
-    public void testReadSuccessButEmpty() throws ParseException, ReadMessageFailException {
-        List<Messages> messages = new ArrayList<>();
+    public void testReadSuccessWithException() throws ParseException, MessageDoesNotExistException {
+        Mockito.when(msgRepo.findByPrimaryId(Mockito.anyString())).thenReturn(null);
 
-        Mockito.when(msgRepo.findUnreadMessages(Mockito.anyString(), Mockito.any())).thenReturn(messages);
-
-        List<Message> message = svc.read(USER2);
-
-        assertThat(message.size()).isEqualTo(0);
-    }
-
-    @Test
-    public void testReadSuccessWithException() throws ParseException, ReadMessageFailException {
-        Messages messages1 = new Messages();
-        messages1.setId("000000A");
-        messages1.setSender(USER1_ID);
-        messages1.setReceiver(USER2_ID);
-        messages1.setSubject("Test 1");
-        messages1.setContent("Message Content 1");
-        messages1.setStatus(EnumConstants.MessageStatus.UNREAD.toString());
-
-        String date1 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
-        messages1.setSentDate(DateUtils.parseDate(date1, HelperConstants.TIMESTAMP_FORMAT));
-
-        Messages messages2 = new Messages();
-        messages2.setId("000000B");
-        messages2.setSender(USER1_ID);
-        messages2.setReceiver(USER2_ID);
-        messages2.setSubject("Test 2");
-        messages2.setContent("Message Content 2");
-        messages2.setStatus(EnumConstants.MessageStatus.UNREAD.toString());
-
-        String date2 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
-        messages2.setSentDate(DateUtils.parseDate(date2, HelperConstants.TIMESTAMP_FORMAT));
-
-        List<Messages> messages = new ArrayList<>();
-        messages.add(messages2);
-        messages.add(messages1);
-
-        Mockito.when(msgRepo.findUnreadMessages(Mockito.anyString(), Mockito.any())).thenReturn(messages);
-        Mockito.when(msgRepo.updateMessageStatus(messages)).thenReturn(1);
-
-        assertThrows(ReadMessageFailException.class, () -> {
-            List<Message> message = svc.read(USER2);
+        assertThrows(MessageDoesNotExistException.class, () -> {
+            Message message = svc.read("000000A");
         });
     }
 
@@ -246,7 +187,6 @@ public class MessageServiceTest {
         messages1.setReceiver(USER2_ID);
         messages1.setSubject("Test 1");
         messages1.setContent("Message Content 1");
-        messages1.setStatus(EnumConstants.MessageStatus.READ.toString());
 
         String date1 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
         messages1.setSentDate(DateUtils.parseDate(date1, HelperConstants.TIMESTAMP_FORMAT));
@@ -257,7 +197,6 @@ public class MessageServiceTest {
         messages2.setReceiver(USER3_ID);
         messages2.setSubject("Test 2");
         messages2.setContent("Message Content 2");
-        messages2.setStatus(EnumConstants.MessageStatus.READ.toString());
 
         String date2 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
         messages2.setSentDate(DateUtils.parseDate(date2, HelperConstants.TIMESTAMP_FORMAT));
@@ -268,7 +207,6 @@ public class MessageServiceTest {
         messages3.setReceiver(USER4_ID);
         messages3.setSubject("Test 3");
         messages3.setContent("Message Content 3");
-        messages3.setStatus(EnumConstants.MessageStatus.UNREAD.toString());
 
         String date3 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
         messages3.setSentDate(DateUtils.parseDate(date3, HelperConstants.TIMESTAMP_FORMAT));
@@ -306,7 +244,6 @@ public class MessageServiceTest {
         messages1.setReceiver(USER5_ID);
         messages1.setSubject("I am Ironman");
         messages1.setContent("Yes, that's correct.");
-        messages1.setStatus(EnumConstants.MessageStatus.READ.toString());
 
         String date1 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
         messages1.setSentDate(DateUtils.parseDate(date1, HelperConstants.TIMESTAMP_FORMAT));
@@ -317,7 +254,6 @@ public class MessageServiceTest {
         messages2.setReceiver(USER5_ID);
         messages2.setSubject("Super Soldier Serum");
         messages2.setContent("That's where my abilities came from.");
-        messages2.setStatus(EnumConstants.MessageStatus.READ.toString());
 
         String date2 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
         messages2.setSentDate(DateUtils.parseDate(date2, HelperConstants.TIMESTAMP_FORMAT));
@@ -328,7 +264,6 @@ public class MessageServiceTest {
         messages3.setReceiver(USER5_ID);
         messages3.setSubject("S.H.I.E.L.D");
         messages3.setContent("I would like to invite you to join the Avengers Initiative.");
-        messages3.setStatus(EnumConstants.MessageStatus.UNREAD.toString());
 
         String date3 = DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT);
         messages3.setSentDate(DateUtils.parseDate(date3, HelperConstants.TIMESTAMP_FORMAT));

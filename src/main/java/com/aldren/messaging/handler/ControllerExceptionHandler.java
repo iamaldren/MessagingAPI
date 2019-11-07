@@ -2,7 +2,7 @@ package com.aldren.messaging.handler;
 
 import com.aldren.messaging.constants.HelperConstants;
 import com.aldren.messaging.exception.BadRequestException;
-import com.aldren.messaging.exception.ReadMessageFailException;
+import com.aldren.messaging.exception.MessageDoesNotExistException;
 import com.aldren.messaging.exception.UserDoesNotExistException;
 import com.aldren.messaging.model.Response;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +33,7 @@ public class ControllerExceptionHandler {
                 .build();
     }
 
-    @ExceptionHandler({UserDoesNotExistException.class})
+    @ExceptionHandler({UserDoesNotExistException.class, MessageDoesNotExistException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public @ResponseBody
     Response handleNotFoundException(Exception e, WebRequest u) {
@@ -45,7 +45,7 @@ public class ControllerExceptionHandler {
                 .build();
     }
 
-    @ExceptionHandler({ParseException.class, NullPointerException.class, ReadMessageFailException.class, })
+    @ExceptionHandler({ParseException.class, NullPointerException.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public @ResponseBody
     Response handleInternalServerException(Exception e, WebRequest u) {

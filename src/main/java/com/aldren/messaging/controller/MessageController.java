@@ -2,7 +2,7 @@ package com.aldren.messaging.controller;
 
 import com.aldren.messaging.constants.HelperConstants;
 import com.aldren.messaging.exception.BadRequestException;
-import com.aldren.messaging.exception.ReadMessageFailException;
+import com.aldren.messaging.exception.MessageDoesNotExistException;
 import com.aldren.messaging.exception.UserDoesNotExistException;
 import com.aldren.messaging.model.Message;
 import com.aldren.messaging.model.MessageList;
@@ -11,13 +11,13 @@ import com.aldren.messaging.service.MessageService;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
 import java.util.Date;
-import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -28,19 +28,11 @@ public class MessageController {
     @Autowired
     private MessageService svc;
 
-    private Set<String> typeValues;
+    private Set<String> forecastValues;
 
-    @GetMapping("/message/read")
-    public List<Message> read(HttpServletRequest request) throws ReadMessageFailException {
-        String user = request.getHeader("X-User");
-        return svc.read(user);
-    }
-
-    @PostMapping("/message/send")
-    public Response send(HttpServletRequest request, @RequestBody Message message) throws UserDoesNotExistException, ParseException {
-        String user = request.getHeader("X-User");
-
-        svc.send(user, message);
+    @PostMapping("/messages")
+    public Response send(@RequestBody Message message) throws UserDoesNotExistException, ParseException {
+        svc.send(message);
 
         return Response.builder()
                 .timestamp(DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT))
@@ -50,45 +42,55 @@ public class MessageController {
                 .build();
     }
 
-    @GetMapping("/message/sent")
-    public MessageList sent(HttpServletRequest request, @RequestParam int page) throws BadRequestException {
-        if(page < 1) {
+    @GetMapping("/messages/{messageId}")
+    public Message read(@PathVariable String messageId) throws MessageDoesNotExistException {
+        return svc.read(messageId);
+    }
+
+    @GetMapping("/messages")
+    public ResponseEntity sent(@RequestParam("sender") Optional<String> sender,
+                               @RequestParam("receiver") Optional<String> receiver,
+                               @RequestParam("forecast") Optional<String> forecast,
+                               @RequestParam("page") Optional<Integer> page) throws BadRequestException {
+
+        if(forecast.isPresent()) {
+            if (!forecastValues.contains(forecast.get())) {
+                throw new BadRequestException("Type entered is not supported. Day/Week computation are the currently supported count prediction.");
+            }
+
+            return ResponseEntity.of(Optional.of(Response.builder()
+                    .timestamp(DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT))
+                    .status(HttpStatus.OK.value())
+                    .description(HttpStatus.OK.name())
+                    .information(svc.messageCountPrediction(forecast.get()))
+                    .build()));
+        }
+
+        if(page.isPresent() && page.get() < 1) {
             throw new BadRequestException("Page cannot be less than 1.");
         }
 
-        String user = request.getHeader("X-User");
-        return svc.listMessages(user, (page - 1), HelperConstants.SENDER);
-    }
+        String user = "";
+        String role = "";
 
-    @GetMapping("/message/receive")
-    public MessageList receive(HttpServletRequest request, @RequestParam int page) throws BadRequestException {
-        if(page < 1) {
-            throw new BadRequestException("Page cannot be less than 1.");
+        if(sender.isPresent()) {
+            user = sender.get();
+            role = HelperConstants.SENDER;
+        } else if(receiver.isPresent()) {
+            user = receiver.get();
+            role = HelperConstants.RECEIVER;
+        } else {
+            throw new BadRequestException("Atleast 1 of the params[sender, receiver] must be present for this endpoint.");
         }
 
-        String user = request.getHeader("X-User");
-        return svc.listMessages(user, (page - 1), HelperConstants.RECEIVER);
-    }
-
-    @GetMapping("/message/predict")
-    public Response predict(@RequestParam String type) throws BadRequestException {
-        if (!typeValues.contains(type)) {
-            throw new BadRequestException("Type entered is not supported. Day/Week computation are the currently supported count prediction.");
-        }
-
-        return Response.builder()
-                .timestamp(DateFormatUtils.format(new Date(), HelperConstants.TIMESTAMP_FORMAT))
-                .status(HttpStatus.OK.value())
-                .description(HttpStatus.OK.name())
-                .information(svc.messageCountPrediction(type))
-                .build();
+        return ResponseEntity.of(Optional.of(svc.listMessages(user, (page.get() - 1), role)));
     }
 
     @PostConstruct
     public void getEnums() {
-        typeValues = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-        typeValues.add(HelperConstants.DAY);
-        typeValues.add(HelperConstants.WEEK);
+        forecastValues = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+        forecastValues.add(HelperConstants.DAY);
+        forecastValues.add(HelperConstants.WEEK);
     }
 
 }

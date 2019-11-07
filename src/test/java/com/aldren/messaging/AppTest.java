@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -63,8 +62,13 @@ public class AppTest {
     private static final String MARIA_HILL = "mariahill";
     private static final String THOR_ODINSON = "thorodinson";
 
+    private static final String TONY_STARK_FN = "Tony Stark";
+    private static final String STEVE_ROGERS_FN = "Steve Rogers";
+    private static final String NICK_FURY_FN = "Nick Fury";
+    private static final String MARIA_HILL_FN = "Maria Hill";
+    private static final String THOR_ODINSON_FN = "Thor Odinson";
+
     private static final String ROLE_USER = "User";
-    private static final String X_USER_HEADER = "X-User";
 
     private static final String ACTIVE_STATUS = "ACTIVE";
 
@@ -83,7 +87,7 @@ public class AppTest {
             Users tonystark = new Users();
             tonystark.setUserId(TONY_STARK);
             tonystark.setFirstName("Tony");
-            tonystark.setLastName("Start");
+            tonystark.setLastName("Stark");
             tonystark.setRole(ROLE_USER);
             tonystark.setStatus(ACTIVE_STATUS);
 
@@ -139,50 +143,34 @@ public class AppTest {
         String content1 = "Let's start the initiative, and start gathering members.";
 
         Message message1 = new Message();
+        message1.setSender(TONY_STARK);
         message1.setReceiver(STEVE_ROGERS);
         message1.setSubject(subject1);
         message1.setContent(content1);
 
-        mockMvc.perform(post("/api/v1/message/send")
+        mockMvc.perform(post("/api/v1/messages")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(convertObject(message1))
-                .header(X_USER_HEADER, TONY_STARK))
+                .content(convertObject(message1)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status", is(HttpStatus.OK.value())))
                 .andExpect(jsonPath("$.description", is(HttpStatus.OK.name())))
                 .andExpect(jsonPath("$.message.receiver", is(STEVE_ROGERS)))
                 .andExpect(jsonPath("$.message.sender", is(TONY_STARK)));
 
-        String subject2 = "Avengers";
-        String content2 = "I heard there's an initiative to gather superpowered beings as Earth's protectors. I wanna join!";
+        MvcResult firstPage = mockMvc.perform(get("/api/v1/messages?page=1&sender=" + TONY_STARK)).andReturn();
 
-        Message message2 = new Message();
-        message2.setReceiver(STEVE_ROGERS);
-        message2.setSubject(subject2);
-        message2.setContent(content2);
+        String response = firstPage.getResponse().getContentAsString();
+        JsonObject fpObject = new JsonObject(response);
 
-        mockMvc.perform(post("/api/v1/message/send")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(convertObject(message2))
-                .header(X_USER_HEADER, THOR_ODINSON))
+        String messageId = fpObject.getJsonArray("messages").getJsonObject(0).getString("id");
+
+        mockMvc.perform(get("/api/v1/messages/" + messageId)
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status", is(HttpStatus.OK.value())))
-                .andExpect(jsonPath("$.description", is(HttpStatus.OK.name())))
-                .andExpect(jsonPath("$.message.receiver", is(STEVE_ROGERS)))
-                .andExpect(jsonPath("$.message.sender", is(THOR_ODINSON)));
-
-        mockMvc.perform(get("/api/v1/message/read")
-                .header(X_USER_HEADER, STEVE_ROGERS))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].subject", is(subject2)))
-                .andExpect(jsonPath("$[0].content", is(content2)))
-                .andExpect(jsonPath("$[0].sender", is(THOR_ODINSON)))
-                .andExpect(jsonPath("$[0].receiver", is(STEVE_ROGERS)))
-                .andExpect(jsonPath("$[1].subject", is(subject1)))
-                .andExpect(jsonPath("$[1].content", is(content1)))
-                .andExpect(jsonPath("$[1].sender", is(TONY_STARK)))
-                .andExpect(jsonPath("$[1].receiver", is(STEVE_ROGERS)));
+                .andExpect(jsonPath("$.sender", is(TONY_STARK_FN)))
+                .andExpect(jsonPath("$.receiver", is(STEVE_ROGERS_FN)))
+                .andExpect(jsonPath("$.subject", is(subject1)))
+                .andExpect(jsonPath("$.content", is(content1)));
     }
 
     @Test
@@ -200,33 +188,31 @@ public class AppTest {
          * For the purpose of assertion in the below test.
          */
         Message message1 = new Message();
+        message1.setSender(user);
         message1.setReceiver(this.users[userNum == 4 ? userNum - 1 : userNum + 1]);
         message1.setSubject(subject);
         message1.setContent(content);
 
-        mockMvc.perform(post("/api/v1/message/send")
+        mockMvc.perform(post("/api/v1/messages")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(convertObject(message1))
-                .header(X_USER_HEADER, user));
+                .content(convertObject(message1)));
 
-        MvcResult firstPage = mockMvc.perform(get("/api/v1/message/sent?page=1")
-                .header(X_USER_HEADER, user)).andReturn();
+        MvcResult firstPage = mockMvc.perform(get("/api/v1/messages?page=1&sender=" + user)).andReturn();
 
         String response = firstPage.getResponse().getContentAsString();
         JsonObject fpObject = new JsonObject(response);
 
         assertThat(fpObject.getJsonArray("messages")).isNotEmpty();
-        assertThat(fpObject.getJsonArray("messages").getJsonObject(0).getString("subject")).isEqualTo(subject);
-        assertThat(fpObject.getJsonArray("messages").getJsonObject(0).getString("content")).isEqualTo(content);
-        assertThat(fpObject.getJsonArray("messages").getJsonObject(0).getString("sender")).isEqualTo(user);
+        assertThat(fpObject.getJsonArray("messages").getJsonObject(0).getString("id")).isNotNull();
+        assertThat(fpObject.getJsonArray("messages").getJsonObject(0).getString("subject")).isNotNull();
+        assertThat(fpObject.getJsonArray("messages").getJsonObject(0).getString("receiver")).isNotNull();
 
         /**
          * If there is only 1 page, no point in getting the last page.
          */
         int lastPage = fpObject.getInteger("totalPage");
         if(lastPage > 1) {
-            MvcResult LastPage = mockMvc.perform(get("/api/v1/message/sent?page=" + lastPage)
-                    .header(X_USER_HEADER, user)).andReturn();
+            MvcResult LastPage = mockMvc.perform(get("/api/v1/messages?page=" + lastPage + "&sender=" + user)).andReturn();
 
             response = LastPage.getResponse().getContentAsString();
             JsonObject lpObject = new JsonObject(response);
@@ -245,30 +231,28 @@ public class AppTest {
         String content = "Testing All Receive messages endpoint.";
 
         Message message1 = new Message();
+        message1.setSender(this.users[userNum == 4 ? userNum - 1 : userNum + 1]);
         message1.setReceiver(user);
         message1.setSubject(subject);
         message1.setContent(content);
 
-        mockMvc.perform(post("/api/v1/message/send")
+        mockMvc.perform(post("/api/v1/messages")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(convertObject(message1))
-                .header(X_USER_HEADER, this.users[userNum == 4 ? userNum - 1 : userNum + 1]));
+                .content(convertObject(message1)));
 
-        MvcResult firstPage = mockMvc.perform(get("/api/v1/message/receive?page=1")
-                .header(X_USER_HEADER, user)).andReturn();
+        MvcResult firstPage = mockMvc.perform(get("/api/v1/messages?page=1&receiver=" + user)).andReturn();
 
         String response = firstPage.getResponse().getContentAsString();
         JsonObject fpObject = new JsonObject(response);
 
         assertThat(fpObject.getJsonArray("messages")).isNotEmpty();
-        assertThat(fpObject.getJsonArray("messages").getJsonObject(0).getString("subject")).isEqualTo(subject);
-        assertThat(fpObject.getJsonArray("messages").getJsonObject(0).getString("content")).isEqualTo(content);
-        assertThat(fpObject.getJsonArray("messages").getJsonObject(0).getString("receiver")).isEqualTo(user);
+        assertThat(fpObject.getJsonArray("messages").getJsonObject(0).getString("id")).isNotNull();
+        assertThat(fpObject.getJsonArray("messages").getJsonObject(0).getString("subject")).isNotNull();
+        assertThat(fpObject.getJsonArray("messages").getJsonObject(0).getString("sender")).isNotNull();
 
         int lastPage = fpObject.getInteger("totalPage");
         if(lastPage > 1) {
-            MvcResult LastPage = mockMvc.perform(get("/api/v1/message/receive?page=" + lastPage)
-                    .header(X_USER_HEADER, user)).andReturn();
+            MvcResult LastPage = mockMvc.perform(get("/api/v1/messages?page=" + lastPage + "&receiver=" + user)).andReturn();
 
             response = LastPage.getResponse().getContentAsString();
             JsonObject lpObject = new JsonObject(response);
@@ -282,7 +266,7 @@ public class AppTest {
     public void testPredictedMessageCountForTheDay() throws Exception {
         String message = "Predicted message count to receive for the day is 22";
 
-        mockMvc.perform(get("/api/v1/message/predict?type=Day"))
+        mockMvc.perform(get("/api/v1/messages?forecast=Day"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status", is(HttpStatus.OK.value())))
                 .andExpect(jsonPath("$.description", is(HttpStatus.OK.name())))
@@ -292,9 +276,9 @@ public class AppTest {
     @Test
     @Order(5)
     public void testPredictedMessageCountForTheWeek() throws Exception {
-        String message = "Predicted message count to receive for the week is 117";
+        String message = "Predicted message count to receive for the week is 116";
 
-        mockMvc.perform(get("/api/v1/message/predict?type=week"))
+        mockMvc.perform(get("/api/v1/messages?forecast=week"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status", is(HttpStatus.OK.value())))
                 .andExpect(jsonPath("$.description", is(HttpStatus.OK.name())))
