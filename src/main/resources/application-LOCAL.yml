@@ -1,4 +1,4 @@
 spring:
   data:
     mongodb:
-      uri: mongodb://iamaldren:secret@localhost:27017/messaging
+      uri: mongodb://iamaldren:secret1@localhost:27017/messaging

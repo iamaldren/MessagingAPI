@@ -1,6 +1,5 @@
 package com.aldren.messaging.service.impl;
 
-import com.aldren.messaging.constants.EnumConstants;
 import com.aldren.messaging.constants.HelperConstants;
 import com.aldren.messaging.document.Messages;
 import com.aldren.messaging.document.Users;
@@ -53,6 +52,7 @@ public class MessageServiceImpl implements MessageService {
         Messages messages = mapMessage(message);
         messages.setSender(poster.getId());
         messages.setReceiver(recipient.get().getId());
+        messages.setStatus("UNREAD");
 
         msgRepo.save(messages);
     }
@@ -61,9 +61,12 @@ public class MessageServiceImpl implements MessageService {
     public Message read(String messageId) throws MessageDoesNotExistException {
         Optional<Messages> messages = Optional.ofNullable(msgRepo.findByPrimaryId(messageId));
 
-        if(!messages.isPresent()) {
+        if (!messages.isPresent()) {
             throw new MessageDoesNotExistException(String.format("Message with ID %s doesn't exists in the database", messageId));
         }
+
+        messages.get().setStatus("READ");
+        msgRepo.save(messages.get());
 
         return convertMessage(messages.get());
     }
@@ -127,12 +130,12 @@ public class MessageServiceImpl implements MessageService {
     }
 
     private Message convertMessage(Messages messages) {
-        if(messages.getSender() != null) {
+        if (messages.getSender() != null) {
             Users sender = userRepo.findByPrimaryId(messages.getSender()).get(0);
             messages.setSender(String.format("%s %s", sender.getFirstName(), sender.getLastName()));
         }
 
-        if(messages.getReceiver() != null) {
+        if (messages.getReceiver() != null) {
             Users receiver = userRepo.findByPrimaryId(messages.getReceiver()).get(0);
             messages.setReceiver(String.format("%s %s", receiver.getFirstName(), receiver.getLastName()));
         }

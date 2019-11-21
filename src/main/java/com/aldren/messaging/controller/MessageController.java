@@ -5,7 +5,6 @@ import com.aldren.messaging.exception.BadRequestException;
 import com.aldren.messaging.exception.MessageDoesNotExistException;
 import com.aldren.messaging.exception.UserDoesNotExistException;
 import com.aldren.messaging.model.Message;
-import com.aldren.messaging.model.MessageList;
 import com.aldren.messaging.model.Response;
 import com.aldren.messaging.service.MessageService;
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -53,7 +52,7 @@ public class MessageController {
                                @RequestParam("forecast") Optional<String> forecast,
                                @RequestParam("page") Optional<Integer> page) throws BadRequestException {
 
-        if(forecast.isPresent()) {
+        if (forecast.isPresent()) {
             if (!forecastValues.contains(forecast.get())) {
                 throw new BadRequestException("Type entered is not supported. Day/Week computation are the currently supported count prediction.");
             }
@@ -67,17 +66,17 @@ public class MessageController {
         }
 
         int pagination = 0;
-        if(page.isPresent() && page.get() > 1) {
+        if (page.isPresent() && page.get() > 1) {
             pagination = page.get() - 1;
         }
 
         String user = "";
         String role = "";
 
-        if(sender.isPresent()) {
+        if (sender.isPresent()) {
             user = sender.get();
             role = HelperConstants.SENDER;
-        } else if(receiver.isPresent()) {
+        } else if (receiver.isPresent()) {
             user = receiver.get();
             role = HelperConstants.RECEIVER;
         } else {

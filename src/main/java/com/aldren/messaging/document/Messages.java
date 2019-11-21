@@ -25,4 +25,6 @@ public class Messages {
 
     private Date sentDate;
 
+    private String status;
+
 }
