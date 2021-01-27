@@ -45,7 +45,7 @@ public class ControllerExceptionHandler {
                 .build();
     }
 
-    @ExceptionHandler({RuntimeException.class})
+    @ExceptionHandler({ParseException.class, NullPointerException.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public @ResponseBody
     Response handleInternalServerException(Exception e, WebRequest u) {
