@@ -42,34 +42,43 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class AppTest {
 
+    @Autowired
+    private WebApplicationContext webApplicationContext;
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
+    @Autowired
+    private UsersRepository usersRepository;
+
+    private static boolean IS_INITIALIZED = false;
+
     private static final String TONY_STARK = "tonystark";
     private static final String STEVE_ROGERS = "steverogers";
     private static final String NICK_FURY = "nickfury";
     private static final String MARIA_HILL = "mariahill";
     private static final String THOR_ODINSON = "thorodinson";
+
     private static final String TONY_STARK_FN = "Tony Stark";
     private static final String STEVE_ROGERS_FN = "Steve Rogers";
     private static final String NICK_FURY_FN = "Nick Fury";
     private static final String MARIA_HILL_FN = "Maria Hill";
     private static final String THOR_ODINSON_FN = "Thor Odinson";
+
     private static final String ROLE_USER = "User";
+
     private static final String ACTIVE_STATUS = "ACTIVE";
-    private static boolean IS_INITIALIZED = false;
-    @Autowired
-    private WebApplicationContext webApplicationContext;
-    @Autowired
-    private MockMvc mockMvc;
-    @Autowired
-    private MongoTemplate mongoTemplate;
-    @Autowired
-    private UsersRepository usersRepository;
+
     private Random randomGenerator = new Random();
 
     private String[] users = {TONY_STARK, STEVE_ROGERS, MARIA_HILL, NICK_FURY, THOR_ODINSON};
 
     @BeforeEach
     public void setup() throws Exception {
-        if (!IS_INITIALIZED) {
+        if(!IS_INITIALIZED) {
             log.info(">>>>>>>>>>>>>>>>>>>>> SETUP <<<<<<<<<<<<<<<<<<<<<<<<<");
 
             mongoTemplate.dropCollection(Users.class);
@@ -202,7 +211,7 @@ public class AppTest {
          * If there is only 1 page, no point in getting the last page.
          */
         int lastPage = fpObject.getInteger("totalPage");
-        if (lastPage > 1) {
+        if(lastPage > 1) {
             MvcResult LastPage = mockMvc.perform(get("/api/v1/messages?page=" + lastPage + "&sender=" + user)).andReturn();
 
             response = LastPage.getResponse().getContentAsString();
@@ -242,7 +251,7 @@ public class AppTest {
         assertThat(fpObject.getJsonArray("messages").getJsonObject(0).getString("sender")).isNotNull();
 
         int lastPage = fpObject.getInteger("totalPage");
-        if (lastPage > 1) {
+        if(lastPage > 1) {
             MvcResult LastPage = mockMvc.perform(get("/api/v1/messages?page=" + lastPage + "&receiver=" + user)).andReturn();
 
             response = LastPage.getResponse().getContentAsString();

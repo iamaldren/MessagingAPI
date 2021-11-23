@@ -1,5 +1,6 @@
 package com.aldren.messaging.service;
 
+import com.aldren.messaging.constants.EnumConstants;
 import com.aldren.messaging.constants.HelperConstants;
 import com.aldren.messaging.document.Messages;
 import com.aldren.messaging.document.Users;
@@ -28,7 +29,7 @@ public class TestService {
     private Random randomGenerator = new Random();
 
     public void insertTestData() throws ParseException {
-        String[] users = {"tonystark", "steverogers", "nickfury", "mariahill", "thorodinson"};
+        String[] users = {"tonystark","steverogers","nickfury","mariahill","thorodinson"};
 
         for (int i = 0; i < 30; i++) {
             int daysAgo = (30 - i);
@@ -44,7 +45,7 @@ public class TestService {
                 Users sender = usersRepo.findByUserId(users[senderNum]);
 
                 int receiverNum = randomGenerator.nextInt(5);
-                while (receiverNum == senderNum) {
+                while(receiverNum == senderNum) {
                     receiverNum = randomGenerator.nextInt(5);
                 }
                 Users receiver = usersRepo.findByUserId(users[receiverNum]);

@@ -18,9 +18,6 @@ db.createCollection("messages", {
                 },
                 sentDate: {
                     bsonType: "date"
-                },
-                status: {
-                    enum: [ "READ", "UNREAD" ]
                 }
             }
         }
